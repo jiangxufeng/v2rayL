@@ -8,6 +8,10 @@ echo "复制文件至 /usr/bin/v2rayL"
 sudo cp ./v2ray-core/{geoip.dat,geosite.dat,v2ctl,v2ray,v2ray.sig,v2ctl.sig} /usr/bin/v2rayL
 echo "复制文件至 /etc/systemd/system/"
 sudo cp ./v2ray-core/v2rayL.service /etc/systemd/system/
+echo "修改部分权限"
 sudo chmod 777 -R /etc/v2rayL
 sudo chmod 777 -R /usr/bin/v2rayL
+sudo chmod 777 /etc/systemd/system/v2rayL.sevice
+echo "设置开机自启动"
+sudo systemctl enable v2rayL.service
 echo "完成."
