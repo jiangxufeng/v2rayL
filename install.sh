@@ -9,6 +9,10 @@ sudo cp ./v2ray-core/{geoip.dat,geosite.dat,v2ctl,v2ray,v2ray.sig,v2ctl.sig} /us
 echo "复制文件至 /etc/systemd/system/"
 sudo cp ./v2ray-core/v2rayL.service /etc/systemd/system/
 echo "设置权限和快捷方式"
+sudo chmod 777 -R /etc/v2rayL
+sudo chmod 777 -R /usr/bin/v2rayL
+sudo chmod 777 /etc/systemd/system/v2rayL.sevice
+
 project_path=$(cd `dirname $0`; pwd)
 current_user=$USER
 echo $current_user
