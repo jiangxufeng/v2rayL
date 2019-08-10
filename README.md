@@ -3,5 +3,6 @@ v2ray linux 简易版
 
 # Usage
 
-1.  ./install.sh
-2. python v2rayL.py
+1. ./install.sh
+2. v2rayL
+
