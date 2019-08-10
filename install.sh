@@ -9,4 +9,5 @@ sudo cp ./v2ray-core/{geoip.dat,geosite.dat,v2ctl,v2ray,v2ray.sig,v2ctl.sig} /us
 echo "复制文件至 /etc/systemd/system/"
 sudo cp ./v2ray-core/v2rayL.service /etc/systemd/system/
 sudo chmod 777 -R /etc/v2rayL
+sudo chmod 777 -R /usr/bin/v2rayL
 echo "完成."
