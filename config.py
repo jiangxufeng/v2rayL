@@ -1,0 +1,71 @@
+# -*- coding:utf-8 -*-
+conf_template = {
+  "log":{},
+  "dns":{},
+  "stats":{},
+  "inbounds":[
+    {
+      "port":"1080",
+      "protocol":"socks",
+      "settings":{
+        "auth":"noauth",
+        "udp": True
+      },
+      "tag":"in-0"
+    }
+  ],
+  "outbounds":[
+    {
+      "protocol":"vmess",
+      "settings":{
+        "vnext":[
+          {
+            "address":"jp03.qianglie.org",
+            "port":80,
+            "users":[
+              {
+                "id":"70B10B71-CAAD-DE8A-7FB7-E055A932D0C3",
+                "alterId": 0
+              }
+            ]
+          }
+        ]
+      },
+      "tag":"out-0",
+       "streamSettings":{
+        "network":"ws",
+        "wsSettings":{
+          "path":"",
+          "headers": {
+            "Host": "jp01-cxils-com.alikunlun.com"
+          }
+        }
+      }
+    },
+    {
+      "tag":"direct",
+      "protocol":"freedom",
+      "settings":{}
+    },
+    {
+      "tag":"blocked",
+      "protocol":"blackhole",
+      "settings":{}
+    }
+  ],
+  "routing":{
+    "domainStrategy":"IPOnDemand",
+    "rules":[
+      {
+        "type":"field",
+        "ip":[
+          "geoip:private"
+        ],
+        "outboundTag":"direct"
+      }
+    ]
+  },
+  "policy":{},
+  "reverse":{},
+  "transport":{}
+}
