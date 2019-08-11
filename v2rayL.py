@@ -12,20 +12,30 @@ class V2rayL(object):
         
         try:
             with open("/etc/v2rayL/current", "rb") as f:
-                self.current, self.url = pickle.load(f)
+                self.current, self.url, self.auto = pickle.load(f)
         except:
             self.current = "未连接VPN"
             self.url = None
+            self.auto = False
 
         self.subs = Sub2Conf(subs_url=self.url)
+
+        if self.auto:
+            try:
+                self.subs.update()
+            except:
+                print("\n自动更新失败： 地址错误或不存在，请更换订阅地址。")
+                self.update()
+
         print("\r------------------------------------------")
         print("当前状态: {}".format(self.current))
+        print("自动更新: {}".format("开启" if self.auto else "关闭"))
         print("订阅地址：{}".format(self.url if self.url else "无"))
-        print("\r------------------------------------------\n")
+        print("\r------------------------------------------")
 
         
     def run(self):
-        print("1. 连接VPN\n2. 断开VPN\n3. 添加配置\n4. 删除配置\n5. 更换订阅地址\n6. 退出\n")
+        print("\n1. 连接VPN\n2. 断开VPN\n3. 添加配置\n4. 删除配置\n5. 订阅\n6. 查看当前状态\n7. 退出\n")
         choice = input("请输入 >> ")
         #choice = sys.stdin.readline().strip()
 
@@ -41,14 +51,50 @@ class V2rayL(object):
             self.delconf()
         elif choice == "5":
             # self.update(flag=True)
-            self.update()
-
+            self.subscribe()
         elif choice == "6":
+            self.status()
+
+        elif choice == "7":
             exit()
         else:
             print("请输入正确的选项...........\n")
             self.run()
-            
+    
+
+    def subscribe(self):
+        print("\r\n------------------------------------------\n")
+        print("1. 开启自动更新订阅\n2. 关闭自动更新订阅\n3. 更换订阅地址\n4. 返回上一层\n")
+        choice = input("请输入 >> ")
+        if choice == "1":
+            with open("/etc/v2rayL/current", "wb") as jf:
+                self.auto = True
+                pickle.dump((self.current, self.url, self.auto), jf)
+            self.run()
+
+        elif choice == "2":
+            with open("/etc/v2rayL/current", "wb") as jf:
+                self.auto = False
+                pickle.dump((self.current, self.url, self.auto), jf)
+            self.run()
+
+        elif choice == "3":
+            self.update()
+
+        elif choice == "4":
+            self.run()
+        else:
+            print("\n请输入正确的选项...........\n")
+            self.run()
+
+    def status(self):
+        print("\r------------------------------------------")
+        print("当前状态: {}".format(self.current))
+        print("自动更新: {}".format("开启" if self.auto else "关闭"))
+        print("订阅地址：{}".format(self.url if self.url else "无"))
+        print("\r------------------------------------------")
+        self.run()
+
 
     def connect(self):
         print("\r------------------------------------------\n")
@@ -89,7 +135,7 @@ class V2rayL(object):
                     print("\r------------------------------------------\n")
                     self.current = tmp[int(choice)]
                     with open("/etc/v2rayL/current", "wb") as jf:
-                        pickle.dump((self.current, self.url), jf)
+                        pickle.dump((self.current, self.url, self.auto), jf)
 
             else:
                 print("\r------------------------------------------\n")
@@ -107,7 +153,7 @@ class V2rayL(object):
                 print("\r------------------------------------------\n")
                 self.current = "未连接至VPN"
                 with open("/etc/v2rayL/current", "wb") as jf:
-                        pickle.dump((self.current, self.url), jf)
+                        pickle.dump((self.current, self.url, self.auto), jf)
                 
             else:
                 print("\r------------------------------------------\n")
@@ -124,14 +170,15 @@ class V2rayL(object):
     # def update(self, flag):
     def update(self):
         # if flag:
-        print("\r------------------------------------------\n")
+        print("\r\n------------------------------------------\n")
         url = input("请输入地址>> ")
         print("\r\n正在更新订阅地址............................\n")
-        self.subs = Sub2Conf(subs_url=url) 
+        self.subs = Sub2Conf(subs_url=url)
+        self.subs.update()
         print("订阅地址更新完成，VPN已更新.....\n")
         print("\r------------------------------------------\n")
         with open("/etc/v2rayL/current", "wb") as jf:
-            pickle.dump((self.current, url), jf)
+            pickle.dump((self.current, url, self.auto), jf)
         self.run()
         # else:
         #     try:
@@ -150,11 +197,15 @@ class V2rayL(object):
 
     def addconf(self):
         print("\r------------------------------------------\n")
-        url = input("请输入配置信息链接(目前支持 vmess://)\n\t\t>> ")
-        print("\r\n正在添加配置...................\n")
-        self.subs = Sub2Conf(conf_url=url)
-        print("配置添加成功，VPN已更新.....\n")
-        self.run()
+        url = input("请输入配置信息链接, 0返回上一层\n(目前支持 vmess://和ss://)>>> ")
+        if url == "0":
+            self.run()
+        else:
+            print("\r\n正在添加配置...................\n")
+            self.subs = Sub2Conf(conf_url=url)
+            self.subs.add_conf_by_uri()
+            print("配置添加成功，VPN已更新.....\n")
+            self.run()
     
     def delconf(self):
         print("\r------------------------------------------\n")

@@ -16,31 +16,10 @@ conf_template = {
   ],
   "outbounds":[
     {
-      "protocol":"vmess",
-      "settings":{
-        "vnext":[
-          {
-            "address":"jp03.qianglie.org",
-            "port":80,
-            "users":[
-              {
-                "id":"70B10B71-CAAD-DE8A-7FB7-E055A932D0C3",
-                "alterId": 0
-              }
-            ]
-          }
-        ]
-      },
+      "protocol":"",
+      "settings":{},
       "tag":"out-0",
-       "streamSettings":{
-        "network":"ws",
-        "wsSettings":{
-          "path":"",
-          "headers": {
-            "Host": "jp01-cxils-com.alikunlun.com"
-          }
-        }
-      }
+      "streamSettings":{}
     },
     {
       "tag":"direct",
