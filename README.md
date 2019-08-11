@@ -30,7 +30,7 @@ v2ray linux 客户端1.0。python3.6 + v2ray内核，系统版本ubuntu18.04
 ![主页](http://cloud.thinker.ink/images/e696559ba97bc730c996d20df938be09.png)
 
 
-![连接更换VPN](http://cloud.thinker.ink/images/0273a648ce19659b2c1fffa08b5db516.png)
+![连接更换VPN](http://cloud.thinker.ink/images/a6a7b8de519e89559bcb9fdfb4b77afd.png)
 
 ![配置操作](http://cloud.thinker.ink/images/9acbe8b0b02b109336e94d8d9df49b4f.png)
 
