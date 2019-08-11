@@ -6,9 +6,9 @@ V2Ray 用户手册：https://www.v2ray.com
 V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 # v2rayL
-v2ray linux 客户端1.0 
+v2ray linux 客户端1.0，python3.6 + v2ray内核
 
-1.0版本个人使用，目前仅针对`墙裂`进行订阅配置，简易实现终端操作。
+1.0版本个人使用，简易实现终端操作。
 
 - 添加订阅地址，自动解析并展示可连接VPN
 - 连接和断开VPN，连接完毕后终端可关闭
