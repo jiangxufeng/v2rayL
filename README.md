@@ -6,14 +6,14 @@ V2Ray 用户手册：https://www.v2ray.com
 V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 # v2rayL
-v2ray linux 客户端1.0，python3.6 + v2ray内核
+v2ray linux 客户端1.0。python3.6 + v2ray内核，系统版本ubuntu18.04
 
-1.0版本个人使用，简易实现终端操作。
+1.0版本个人使用，简易实现终端操作。目前支持vmess、shadowsocks
 
 - 添加订阅地址，自动解析并展示可连接VPN
 - 连接和断开VPN，连接完毕后终端可关闭
 - 自动更新订阅、更换地址
-- 通过`vmess://`分享链接添加配置
+- 通过`vmess://`、`ss://`分享链接添加配置
 - ......
 
 # Usage
@@ -24,3 +24,5 @@ v2ray linux 客户端1.0，python3.6 + v2ray内核
 ```
  ②       v2rayL
 ```
+
+# 展示
