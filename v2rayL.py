@@ -59,7 +59,7 @@ class V2rayL(object):
 
     def cgeconf(self):
         print("\r\n------------------------------------------\n")
-        print("1. 添加配置\n2. 删除配置\n3. 返回上一层\n")
+        print("1. 添加配置\n2. 删除配置\n0. 返回上一层\n")
         choice = input("请输入 >> ")
         if choice == "1":
             self.addconf()
@@ -67,7 +67,7 @@ class V2rayL(object):
         elif choice == "2":
             self.delconf()
 
-        elif choice == "3":
+        elif choice == "0":
             self.run()
 
         else:
@@ -77,7 +77,7 @@ class V2rayL(object):
 
     def subscribe(self):
         print("\r\n------------------------------------------\n")
-        print("1. 开启自动更新订阅\n2. 关闭自动更新订阅\n3. 更换订阅地址\n4. 返回上一层\n")
+        print("1. 开启自动更新订阅\n2. 关闭自动更新订阅\n3. 更换订阅地址\n0. 返回上一层\n")
         choice = input("请输入 >> ")
         if choice == "1":
             with open("/etc/v2rayL/current", "wb") as jf:
@@ -94,7 +94,7 @@ class V2rayL(object):
         elif choice == "3":
             self.update()
 
-        elif choice == "4":
+        elif choice == "0":
             self.run()
         else:
             print("\n请输入正确的选项...........\n")
