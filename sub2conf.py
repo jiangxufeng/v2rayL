@@ -76,7 +76,11 @@ class Sub2Conf(object):
 
         elif prot == "ss":
             string = b64str.split("#")
-            tmp = base64.b64decode(string[0]).decode()  # aes-256-cfb:541603466@142.93.50.78:9898
+            cf = string[0].split("@")
+            if len(cf) == 1:
+                tmp = base64.b64decode(cf[0]).decode()  # aes-256-cfb:541603466@142.93.50.78:9898
+            else:
+                tmp = base64.b64decode(cf[0]).decode()+"@"+cf[1]
             ret = {
                 "method": tmp.split(":")[0],
                 "port": tmp.split(":")[2],
