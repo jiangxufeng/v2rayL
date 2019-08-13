@@ -67,16 +67,16 @@ class Ui_MainWindow(object):
         self.toolBar.setObjectName("toolBar")
         MainWindow.addToolBar(Qt.TopToolBarArea, self.toolBar)
 
-        self.connect_ui = QAction(QIcon("./images/ok2.png"), "连接", self)
+        self.connect_ui = QAction(QIcon("/etc/v2rayL/images/ok2.png"), "连接", self)
         self.toolBar.addAction(self.connect_ui)
 
-        self.disconnect_ui = QAction(QIcon("./images/no2.png"), "断开连接", self)
+        self.disconnect_ui = QAction(QIcon("/etc/v2rayL/images/no2.png"), "断开连接", self)
         self.toolBar.addAction(self.disconnect_ui)
 
-        self.delconf_ui = QAction(QIcon("./images/del.png"), "删除当前配置", self)
+        self.delconf_ui = QAction(QIcon("/etc/v2rayL/images/del.png"), "删除当前配置", self)
         self.toolBar.addAction(self.delconf_ui)
 
-        self.ping_ui = QAction(QIcon("./images/ping.png"), "测试延时", self)
+        self.ping_ui = QAction(QIcon("/etc/v2rayL/images/ping.png"), "测试延时", self)
         self.toolBar.addAction(self.ping_ui)
 
         self.action = QAction(MainWindow)
@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "V2rayL"))
-        MainWindow.setWindowIcon(QIcon("./images/logo.png"))
+        MainWindow.setWindowIcon(QIcon("/etc/v2rayL/images/logo.png"))
         self.menu.setTitle(_translate("MainWindow", "配置"))
         self.menu_3.setTitle(_translate("MainWindow", "添加配置"))
         self.menu_4.setTitle(_translate("MainWindow", "订阅"))
@@ -238,7 +238,7 @@ class SystemTray(object):
 
     def initUI(self):
         # 设置托盘图标
-        self.tp.setIcon(QIcon('./images/logo.png'))
+        self.tp.setIcon(QIcon('/etc/v2rayL/images/logo.png'))
 
     def quitApp(self):
         # 退出程序
