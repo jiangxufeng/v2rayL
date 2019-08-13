@@ -324,8 +324,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # 断开连接线程
         self.disconn_start = DisConnectThread(tv=(self.tableView, self.v2rayL))
         # 更新线程
-        self.update_addr_start = UpdateSubsThread(tv=(self.v2rayL, self.subs_child_ui))
-        self.update_subs_start = UpdateSubsThread(tv=(self.v2rayL, None))
+        self.update_addr_start = UpdateSubsThread()
+        self.update_subs_start = UpdateSubsThread()
 
         self.ping_start = PingThread(tv=(self.tableView, self.v2rayL))
         # 事件绑定
@@ -432,6 +432,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         :return:
         """
         url = self.subs_child_ui.lineEdit.text()
+        self.update_addr_start.v2rayL = self.v2rayL
+        self.update_addr_start.subs_child_ui = self.subs_child_ui
         if not url:
             choice = QMessageBox.warning(self, "订阅地址更新", self.tr("当前订阅地址为空，继续则删除订阅地址，是否继续？"),
                                          QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)
@@ -449,6 +451,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.update_addr_start.start()
 
     def update_subs(self):
+        self.update_subs_start.v2rayL = self.v2rayL
+        self.update_subs_start.subs_child_ui = None
         self.update_subs_start.start()
 
     def get_conf_from_uri(self):
@@ -550,11 +554,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                                                      "/home",
                                                      "Json Files (*.json)")
         if ok2:
-	        with open("/etc/v2rayL/config.json", "r") as f:
-	            tmp = f.read()
-	        with open(fileName, "w") as wf:
-	            wf.write(tmp)
-        	QMessageBox.information(self, "导出成功", self.tr("保存为： "+fileName))
+            with open("/etc/v2rayL/config.json", "r") as f:
+                tmp = f.read()
+            with open(fileName, "w") as wf:
+                wf.write(tmp)
+            QMessageBox.information(self, "导出成功", self.tr("保存为： "+fileName))
 
     def enable_auto_update(self):
         self.action_8.setChecked(True)
