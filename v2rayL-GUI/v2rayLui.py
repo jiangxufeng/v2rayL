@@ -318,8 +318,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.display_all_conf()
         self.statusbar.showMessage("当前状态: "+self.v2rayL.current+"\t\t\t\t\t\t自动更新: "+
                                    ("开启" if self.v2rayL.auto else "关闭"))
-        # 设置最小化到托盘
-        self.tray()
 
         # 开启连接线程
         self.conn_start = ConnectThread(tv=(self.tableView, self.v2rayL))
@@ -352,6 +350,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
         self.ping_ui.triggered.connect(self.start_ping_th)  # 绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
+
+        # 设置最小化到托盘
+        self.tray()
 
     def tray(self):
         # 创建托盘程序
