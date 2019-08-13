@@ -549,12 +549,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                                                      "文件保存",
                                                      "/home",
                                                      "Json Files (*.json)")
-        with open("/etc/v2rayL/config.json", "r") as f:
-            tmp = f.read()
-        with open(fileName, "w") as wf:
-            wf.write(tmp)
-
-        QMessageBox.information(self, "导出成功", self.tr("保存为： "+fileName))
+        if ok2:
+	        with open("/etc/v2rayL/config.json", "r") as f:
+	            tmp = f.read()
+	        with open(fileName, "w") as wf:
+	            wf.write(tmp)
+        	QMessageBox.information(self, "导出成功", self.tr("保存为： "+fileName))
 
     def enable_auto_update(self):
         self.action_8.setChecked(True)
