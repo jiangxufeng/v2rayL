@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'v2layL.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
+# -*- coding:utf-8 -*-
+# Author: Suummmmer
+# Date: 2019-08-13
 
 from PyQt5.QtWidgets import (
     QLabel, 

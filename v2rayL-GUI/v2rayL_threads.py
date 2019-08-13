@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# author: Suummmmer
-# date: 2019-08-13
+# -*- coding:utf-8 -*-
+# Author: Suummmmer
+# Date: 2019-08-13
 
 from PyQt5.QtCore import QThread, pyqtSignal
 

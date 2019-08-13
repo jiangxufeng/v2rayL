@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
-# author: Suummmmer
+# Author: Suummmmer
+# Date: 2019-08-13
 
 import base64
 import json
@@ -46,7 +47,7 @@ class Sub2Conf(object):
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
-                tmp = base64.b64decode(cf[0]).decode()  
+                tmp = base64.b64decode(cf[0]).decode()
             else:
                 tmp = base64.b64decode(cf[0]).decode() + "@" + cf[1]
             ret = {
