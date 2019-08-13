@@ -77,18 +77,22 @@ class V2rayL(object):
 
     def subscribe(self):
         print("\r\n------------------------------------------\n")
-        print("1. 开启自动更新订阅\n2. 关闭自动更新订阅\n3. 更换订阅地址\n0. 返回上一层\n")
+        print("1. 开启自动更新订阅\n2. 关闭自动更新订阅\n3. 修改订阅地址\n0. 返回上一层\n")
         choice = input("请输入 >> ")
         if choice == "1":
             with open("/etc/v2rayL/current", "wb") as jf:
                 self.auto = True
                 pickle.dump((self.current, self.url, self.auto), jf)
+            print("\n已开启自动更新订阅，下次进入生效\n")
+            print("\r------------------------------------------")
             self.run()
 
         elif choice == "2":
             with open("/etc/v2rayL/current", "wb") as jf:
                 self.auto = False
                 pickle.dump((self.current, self.url, self.auto), jf)
+            print("\n已关闭自动更新订阅，下次进入生效\n")
+            print("\r------------------------------------------")
             self.run()
 
         elif choice == "3":
@@ -133,6 +137,7 @@ class V2rayL(object):
             elif choice in [str(i) for i in range(num)]:
                 self.subs.setconf(tmp[int(choice)])
                 try:
+                    print("\r\n正在连接................\n")
                     output = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
                     if "Active: active" in output:
                         subprocess.call(["sudo systemctl restart v2rayL.service"], shell=True)
@@ -142,7 +147,6 @@ class V2rayL(object):
                     print("连接失败，请尝试更新订阅后再次连接......")
                     self.run()
                 else:   
-                    print("\r\n正在连接................\n")
                     sleep(2)
                     print("成功连接到VPN：{}\n".format(tmp[int(choice)]))
                     print("\r------------------------------------------\n")
