@@ -21,7 +21,9 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QDialog,
     QMessageBox,
-    QFileDialog
+    QFileDialog,
+    QSystemTrayIcon,
+    qApp
 )
 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
@@ -127,6 +129,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "V2rayL"))
+        MainWindow.setWindowIcon(QIcon("./images/logo.png"))
         self.menu.setTitle(_translate("MainWindow", "配置"))
         self.menu_3.setTitle(_translate("MainWindow", "添加配置"))
         self.menu_4.setTitle(_translate("MainWindow", "订阅"))
@@ -222,6 +225,61 @@ class CenterDelegate(QItemDelegate):
         painter.restore()
 
 
+class SystemTray(object):
+    # 程序托盘类
+    def __init__(self, w):
+        self.app = app
+        self.w = w
+        QApplication.setQuitOnLastWindowClosed(False)  # 禁止默认的closed方法，
+        self.w.show()  # 不设置显示则为启动最小化到托盘
+        self.tp = QSystemTrayIcon(self.w)
+        self.initUI()
+        self.run()
+
+    def initUI(self):
+        # 设置托盘图标
+        self.tp.setIcon(QIcon('./images/logo.png'))
+
+    def quitApp(self):
+        # 退出程序
+        self.w.show()  # w.hide() #设置退出时是否显示主窗口
+        re = QMessageBox.question(self.w, "提示", "退出系统", QMessageBox.Yes |
+                                  QMessageBox.No, QMessageBox.No)
+        if re == QMessageBox.Yes:
+            self.tp.setVisible(False)  # 隐藏托盘控件
+            qApp.quit()  # 退出程序
+
+    def message(self):
+        # 提示信息被点击方法
+        print("弹出的信息被点击了")
+
+    def act(self, reason):
+        # 主界面显示方法
+        # 鼠标点击icon传递的信号会带有一个整形的值，1是表示单击右键，2是双击，3是单击左键，4是用鼠标中键点击
+        if reason == 2 or reason == 3:
+            self.w.show()
+
+    def run(self):
+        a1 = QAction('&显示(Show)', triggered=self.w.show)
+        a2 = QAction('&退出(Exit)', triggered=self.quitApp)
+        tpMenu = QMenu()
+        tpMenu.addAction(a1)
+        tpMenu.addAction(a2)
+        self.tp.setContextMenu(tpMenu)
+        self.tp.show()  # 不调用show不会显示系统托盘消息，图标隐藏无法调用
+
+        # 信息提示
+        # 参数1：标题
+        # 参数2：内容
+        # 参数3：图标（0没有图标 1信息图标 2警告图标 3错误图标），0还是有一个小图标
+        # self.tp.showMessage('Hello', '我藏好了', icon=0)
+        # 绑定提醒信息点击事件
+        self.tp.messageClicked.connect(self.message)
+        # 绑定托盘菜单点击事件
+        self.tp.activated.connect(self.act)
+        sys.exit(self.app.exec_())  # 持续对app的连接
+
+
 class MyMainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__(parent)
@@ -256,9 +314,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # 填充当前订阅地址
         self.subs_child_ui.lineEdit.setText(self.v2rayL.url)
 
+        # 显示当前所有配置
         self.display_all_conf()
         self.statusbar.showMessage("当前状态: "+self.v2rayL.current+"\t\t\t\t\t\t自动更新: "+
                                    ("开启" if self.v2rayL.auto else "关闭"))
+        # 设置最小化到托盘
+        self.tray()
 
         # 开启连接线程
         self.conn_start = ConnectThread(tv=(self.tableView, self.v2rayL))
@@ -292,6 +353,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.ping_ui.triggered.connect(self.start_ping_th)  # 绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
 
+    def tray(self):
+        # 创建托盘程序
+        ti = SystemTray(self)
 
     def display_all_conf(self):
         """
@@ -511,6 +575,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         region = self.tableView.model().item(row, 0).text()
         ret = self.v2rayL.subs.conf2b64(region)
         QMessageBox.information(self, "分享链接", self.tr(ret))
+
 
 if __name__ == "__main__":
     import sys
