@@ -11,7 +11,7 @@ sudo cp ./v2ray-core/v2rayL.service /etc/systemd/system/
 echo "设置权限和快捷方式"
 sudo chmod 777 -R /etc/v2rayL
 sudo chmod 777 -R /usr/bin/v2rayL
-sudo chmod 777 /etc/systemd/system/v2rayL.sevice
+
 
 project_path=$(cd `dirname $0`; pwd)
 current_user=$USER
