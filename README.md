@@ -21,5 +21,8 @@ v2ray linux 客户端1.1。python3.6 + v2ray内核，系统版本ubuntu18.04
 ①       ./install.sh
 ```
 
+# 首页展示
+
+![首页](http://cloud.thinker.ink/images/af66fb3e92e9e4a94c9e01105e0db625.png)
 
 
