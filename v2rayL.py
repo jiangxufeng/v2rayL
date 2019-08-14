@@ -183,7 +183,7 @@ class V2rayL(object):
             print("服务出错，请稍后再试.................\n")
             print("\r------------------------------------------\n")
 
-        # https://sub.qianglie.xyz/subscribe.php?sid=4594&token=TCDWnwMD0rGg
+        # 
     # def update(self, flag):
     def update(self):
         # if flag:

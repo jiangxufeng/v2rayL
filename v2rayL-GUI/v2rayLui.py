@@ -320,9 +320,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                                    ("开启" if self.v2rayL.auto else "关闭"))
 
         # 开启连接线程
-        self.conn_start = ConnectThread(tv=(self.tableView, self.v2rayL))
+        self.conn_start = ConnectThread()
         # 断开连接线程
-        self.disconn_start = DisConnectThread(tv=(self.tableView, self.v2rayL))
+        self.disconn_start = DisConnectThread()
         # 更新线程
         self.update_addr_start = UpdateSubsThread()
         self.update_subs_start = UpdateSubsThread()
@@ -495,6 +495,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.connect_ui.setDisabled(True)
         self.disconnect_ui.setEnabled(True)
         self.statusbar.showMessage("正在连接.......")
+        self.conn_start.v2rayL = self.v2rayL
+        self.conn_start.tableView = self.tableView
         self.conn_start.start()
 
     def end_conn_th(self):
@@ -502,6 +504,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.connect_ui.setEnabled(True)
         self.disconnect_ui.setDisabled(True)
         self.statusbar.showMessage("正在断开连接.......")
+        self.disconn_start.v2rayL = self.v2rayL
+        self.disconn_start.tableView = self.tableView
         self.disconn_start.start()
 
     def alert(self, tp):

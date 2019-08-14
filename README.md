@@ -20,7 +20,9 @@ v2ray linux 客户端1.1。python3.6 + v2ray内核，系统版本ubuntu18.04
 
 # Usage
 ```
-①       ./install.sh
+① 在release中下载最新版本压缩包，并解压缩
+
+② 在解压缩后目录运行 ./install.sh
 ```
 
 # 首页展示
