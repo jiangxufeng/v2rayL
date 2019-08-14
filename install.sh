@@ -13,8 +13,8 @@ sudo chmod 777 -R /etc/v2rayL
 sudo chmod 777 -R /usr/bin/v2rayL
 echo "复制静态文件"
 cp -r ./v2rayL-GUI/images /etc/v2rayL
-echo "移动可执行程序"
-cp ./v2rayL-exec/v2rayLui /usr/bin/v2rayL/
+echo "解压可执行程序"
+tar xvJf ./v2rayL-exec/v2rayLui-v1.1.tar.xz -C /usr/bin/v2rayL/
 
 project_path=$(cd `dirname $0`; pwd)
 current_user=$USER
