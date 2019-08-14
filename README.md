@@ -6,6 +6,9 @@ V2Ray 用户手册：https://www.v2ray.com
 V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 # v2rayL
+
+![v2rayL](http://cloud.thinker.ink/images/v2rayLlogo.png)
+
 v2ray linux 客户端1.1。python3.6 + v2ray内核，系统版本ubuntu18.04
 
 目前支持vmess、shadowsocks
