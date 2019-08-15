@@ -34,4 +34,8 @@ v2ray linux 客户端1.1，使用pyqt5编写GUI界面，核心基于v2ray-core
 
 ![首页](http://cloud.thinker.ink/images/af66fb3e92e9e4a94c9e01105e0db625.png)
 
+## License
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 
