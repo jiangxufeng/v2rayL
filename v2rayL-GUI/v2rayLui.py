@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import (
     qApp
 )
 
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon, QStatusTipEvent, QCursor       
 from PyQt5.QtCore import Qt, QSize, QRect, QCoreApplication, QMetaObject
 from v2rayL_api import V2rayL, MyException
 from datetime import datetime
@@ -87,20 +87,32 @@ class Ui_MainWindow(object):
         self.action_4.setObjectName("action_4")
         self.action_5 = QAction(MainWindow)
         self.action_5.setObjectName("action_5")
+        self.action_5.setShortcut('Ctrl+Q')
         self.action_6 = QAction(MainWindow)
         self.action_6.setObjectName("action_6")
+        self.action_6.setShortcut('Ctrl+W')
         self.action_8 = QAction(MainWindow, checkable=True)
         self.action_8.setObjectName("action_8")
+        self.action_8.setShortcut('Ctrl+D')
         self.action_9 = QAction(MainWindow, checkable=True)
+        self.action_9.setShortcut('Ctrl+F')
         self.action_9.setObjectName("action_9")
         self.action_10 = QAction(MainWindow)
         self.action_10.setObjectName("action_10")
+        self.action_10.setShortcut('F3')
         self.action_11 = QAction(MainWindow)
         self.action_11.setObjectName("action_11")
+        self.action_11.setShortcut('F4')
         self.action_24 = QAction(MainWindow)
         self.action_24.setObjectName("action_24")
+        self.action_24.setShortcut('F1')
         self.action_25 = QAction(MainWindow)
         self.action_25.setObjectName("action_25")
+        self.action_25.setShortcut('F2')
+        self.action_26 = QAction(MainWindow)
+        self.action_26.setObjectName("action_26")
+        self.action_26.setShortcut('Ctrl+H')
+
         self.menu_3.addAction(self.action_24)
         self.menu_3.addAction(self.action_25)
         self.menu.addAction(self.menu_3.menuAction())
@@ -118,15 +130,21 @@ class Ui_MainWindow(object):
         self.menu_4.addAction(self.menu_5.menuAction())
         self.menu_4.addSeparator()
         self.menu_2.addSeparator()
+        self.menu_2.addAction(self.action_26)
         self.menu_2.addSeparator()
         self.menubar.addAction(self.menu.menuAction())
         self.menubar.addAction(self.menu_4.menuAction())
         self.menubar.addAction(self.menu_2.menuAction())
+        self.rightMenu = QMenu(self)
+        self.CN = self.rightMenu.addAction('连接')
+        self.DISCN = self.rightMenu.addAction('断开')
+
+        MainWindow.setContextMenuPolicy(Qt.CustomContextMenu)
 
         self.retranslateUi(MainWindow)
         QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, MainWindow):    
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "V2rayL"))
         MainWindow.setWindowIcon(QIcon("/etc/v2rayL/images/logo.png"))
@@ -147,7 +165,7 @@ class Ui_MainWindow(object):
         self.action_11.setText(_translate("MainWindow", "分享当前配置"))
         self.action_24.setText(_translate("MainWindow", "通过链接"))
         self.action_25.setText(_translate("MainWindow", "通过二维码"))
-
+        self.action_26.setText(_translate("MainWindow", "说明"))
 
 class Ui_Subs_Dialog(object):
     def setupUi(self, Dialog):
@@ -243,7 +261,7 @@ class SystemTray(object):
     def quitApp(self):
         # 退出程序
         self.w.show()  # w.hide() #设置退出时是否显示主窗口
-        re = QMessageBox.question(self.w, "提示", "退出系统", QMessageBox.Yes |
+        re = QMessageBox.question(self.w, "提示", "确认退出？", QMessageBox.Yes |
                                   QMessageBox.No, QMessageBox.No)
         if re == QMessageBox.Yes:
             self.tp.setVisible(False)  # 隐藏托盘控件
@@ -292,6 +310,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.confui = QDialog()
         self.confs_child_ui = Ui_Conf_Dialog()
         self.confs_child_ui.setupUi(self.confui)
+        self.status_format = "当前状态: {}\t\t\t\t\t\t自动更新: {}"
         # 获取api操作
         self.v2rayL = V2rayL()
 
@@ -311,13 +330,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.connect_ui.setDisabled(True)
             self.disconnect_ui.setEnabled(True)
+
         # 填充当前订阅地址
         self.subs_child_ui.lineEdit.setText(self.v2rayL.url)
 
         # 显示当前所有配置
         self.display_all_conf()
-        self.statusbar.showMessage("当前状态: "+self.v2rayL.current+"\t\t\t\t\t\t自动更新: "+
-                                   ("开启" if self.v2rayL.auto else "关闭"))
+        self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"), "NaN")
+        self.statusbar.showMessage(self.status)
+                                   
 
         # 开启连接线程
         self.conn_start = ConnectThread()
@@ -336,6 +357,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.action_24.triggered.connect(self.confs_ui_show)  # 显示配置窗口
         self.action_10.triggered.connect(self.output_conf)  # 导出配置文件
         self.action_11.triggered.connect(self.output_conf_by_uri)  # 生成分享链接
+        self.action_26.triggered.connect(self.help)  # 显示帮助说明信息
         self.subs_child_ui.pushButton_2.clicked.connect(self.subs_ui_hide)  # 关闭订阅地址窗口
         self.confs_child_ui.pushButton_2.clicked.connect(self.confs_ui_hide)  # 显示配置窗口
         self.subs_child_ui.pushButton.clicked.connect(self.change_subs_addr)  # 更新订阅操作
@@ -350,13 +372,26 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
         self.ping_ui.triggered.connect(self.start_ping_th)  # 绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
+        self.CN.triggered.connect(self.start_conn_th)
+        self.DISCN.triggered.connect(self.end_conn_th)
+        self.customContextMenuRequested.connect(self.rightMenuShow)
 
         # 设置最小化到托盘
         self.tray()
 
+    def help(self):
+        QMessageBox.about(self, "说明", 
+            self.tr("1. v2rayL当前版本：v1.1\n" \
+                "2. github地址：https://github.com/jiangxufeng/v2rayL\n" \
+                "3. 目前支持协议有：Vmess、shadowsocks\n4. 目前仅支持通过分享链接导入配置\n" \
+                "5. 双击选中配置可直接进行连接\n6. 程序可能存在为测试到的Bug，使用过程中发现Bug请在github提交"))
+
     def tray(self):
         # 创建托盘程序
         ti = SystemTray(self)
+
+    def rightMenuShow(self, pos):
+        self.rightMenu.exec_(QCursor.pos()) 
 
     def display_all_conf(self):
         """
@@ -514,8 +549,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         if rs == "@@OK@@":
             if tp == "conn":
                 QMessageBox.information(self, "连接成功", self.tr("连接成功！当前状态: " + ret))
-                self.statusbar.showMessage("当前状态: " + ret + "\t\t\t\t\t\t自动更新: " +
-                                           ("开启" if self.v2rayL.auto else "关闭"))
+                self.status = self.status_format.format(ret, ("开启" if self.v2rayL.auto else "关闭"))
+                self.statusbar.showMessage(self.status)
                 if self.default != row:  # 当前配置和上一次使用的不一致
                     # 上一次的更改为未连接
                     self.tableView.model().setItem(self.default, 3, QStandardItem("未连接"))
@@ -525,8 +560,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
             elif tp == "disconn":
                 QMessageBox.information(self, "断开连接成功", self.tr("VPN连接已断开"))
-                self.statusbar.showMessage("当前状态: " + ret + "\t\t\t\t\t\t自动更新: " +
-                                           ("开启" if self.v2rayL.auto else "关闭"))
+                self.status = self.status_format.format(ret, ("开启" if self.v2rayL.auto else "关闭"))
+                self.statusbar.showMessage(self.status)
                 self.tableView.model().setItem(self.default, 3, QStandardItem("未连接"))
                 self.tableView.selectRow(self.default)
 
@@ -535,19 +570,19 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
                 self.subs_ui_hide()
-                self.statusbar.showMessage("当前状态: " + self.v2rayL.current + "\t\t\t\t\t\t自动更新: " +
-                                           ("开启" if self.v2rayL.auto else "关闭"))
+                self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"))
+                self.statusbar.showMessage(self.status)
 
             elif tp == "update":
                 QMessageBox.information(self, "订阅通知", self.tr("订阅更新完成"))
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
-                self.statusbar.showMessage("当前状态: " + self.v2rayL.current + "\t\t\t\t\t\t自动更新: " +
-                                           ("开启" if self.v2rayL.auto else "关闭"))
+                self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"))
+                self.statusbar.showMessage(self.status)
 
             elif tp == "ping":
-                self.statusbar.showMessage("当前状态: {}\t\t\t\t\t\t自动更新: {}\t\t\t\t\t\t延时: {}ms".format(
-                                            self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"), ret))
+                self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"))+ "\t\t\t\t\t\t所测延时: {}ms".format(ret)
+                self.statusbar.showMessage(self.status)
         else:
             QMessageBox.critical(self, "错误", self.tr(ret))
 
@@ -568,13 +603,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.action_8.setChecked(True)
         self.action_9.setChecked(False)
         self.v2rayL.subscribe(True)
-        self.statusbar.showMessage("当前状态: " + self.v2rayL.current + "\t\t\t\t\t\t自动更新: 开启")
+        self.status = self.status_format.format(self.v2rayL.current, ("开启"))
+        self.statusbar.showMessage(self.status)
 
     def disable_auto_update(self):
         self.action_8.setChecked(False)
         self.action_9.setChecked(True)
         self.v2rayL.subscribe(False)
-        self.statusbar.showMessage("当前状态: " + self.v2rayL.current + "\t\t\t\t\t\t自动更新: 关闭")
+        self.status = self.status_format.format(self.v2rayL.current, ("关闭"))
+        self.statusbar.showMessage(self.status)
 
     def start_ping_th(self):
         self.ping_start.start()
@@ -584,6 +621,13 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         region = self.tableView.model().item(row, 0).text()
         ret = self.v2rayL.subs.conf2b64(region)
         QMessageBox.information(self, "分享链接", self.tr(ret))
+
+
+    def event(self, QEvent):
+        if QEvent.type() == QEvent.StatusTip:
+            if QEvent.tip() == "":
+                QEvent = QStatusTipEvent(self.status)  # 此处为要始终显示的内容
+        return super().event(QEvent)
 
 
 if __name__ == "__main__":

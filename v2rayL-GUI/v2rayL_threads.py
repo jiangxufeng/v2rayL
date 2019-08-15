@@ -20,14 +20,18 @@ class ConnectThread(QThread):
         self.wait()
 
     def run(self):
-        row = self.tableView.currentIndex().row()
-        region = self.tableView.model().item(row, 0).text()
         try:
-            self.v2rayL.connect(region)
-        except MyException as e:
-            self.sinOut.emit(("conn", "@@Fail@@", e.args[0], None))
+            row = self.tableView.currentIndex().row()
+            region = self.tableView.model().item(row, 0).text()    
+        except Exception as e:
+            self.sinOut.emit(("conn", "@@Fail@@", "未选中配置无法连接，请导入配置后再次连接", None))
         else:
-            self.sinOut.emit(("conn", "@@OK@@", region, row))
+            try:
+                self.v2rayL.connect(region)
+            except MyException as e:
+                self.sinOut.emit(("conn", "@@Fail@@", e.args[0], None))
+            else:
+                self.sinOut.emit(("conn", "@@OK@@", region, row))
 
 
 class DisConnectThread(QThread):

@@ -15,7 +15,7 @@ class V2rayL(object):
             with open("/etc/v2rayL/current", "rb") as f:
                 self.current, self.url, self.auto = pickle.load(f)
         except:
-            self.current = "未连接VPN"
+            self.current = "未连接至VPN"
             self.url = None
             self.auto = False
 
