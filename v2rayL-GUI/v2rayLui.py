@@ -486,6 +486,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.update_addr_start.start()
 
     def update_subs(self):
+        """
+        手动更新订阅
+        :return:
+        """
         self.update_subs_start.v2rayL = self.v2rayL
         self.update_subs_start.subs_child_ui = None
         self.update_subs_start.start()
@@ -505,6 +509,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.v2rayL.addconf(uri)
             except MyException as e:
                 QMessageBox.critical(self, "错误", self.tr(e.args[0]))
+                self.confs_child_ui.lineEdit.setText("")
             else:
                 QMessageBox.information(self, "完成", self.tr("配置添加成功！"))
                 self.confs_ui_hide()
@@ -513,6 +518,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.confs_child_ui.lineEdit.setText("")
 
     def del_conf(self):
+        """
+        移除一个配置
+        :return:
+        """
         row = self.tableView.currentIndex().row()
         region = self.tableView.model().item(row, 0).text()
         if self.v2rayL.current == region:
@@ -526,7 +535,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.display_all_conf()
 
     def start_conn_th(self):
-        """开启连接线程"""
+        """
+        开启连接线程
+        """
         self.connect_ui.setDisabled(True)
         self.disconnect_ui.setEnabled(True)
         self.statusbar.showMessage("正在连接.......")
@@ -535,7 +546,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.conn_start.start()
 
     def end_conn_th(self):
-        """开启断开连接线程"""
+        """
+        开启断开连接线程
+        """
         self.connect_ui.setEnabled(True)
         self.disconnect_ui.setDisabled(True)
         self.statusbar.showMessage("正在断开连接.......")
@@ -544,7 +557,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.disconn_start.start()
 
     def alert(self, tp):
-        """操作反馈"""
+        """
+        操作反馈
+        """
         tp, rs, ret, row = tp
         if rs == "@@OK@@":
             if tp == "conn":
@@ -585,9 +600,13 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.statusbar.showMessage(self.status)
         else:
             QMessageBox.critical(self, "错误", self.tr(ret))
+            if tp == "addr":
+                self.subs_child_ui.lineEdit.setText(self.v2rayL.url)
 
     def output_conf(self):
-        """导出配置文件"""
+        """
+        导出配置文件
+        """
         fileName, ok2 = QFileDialog.getSaveFileName(self,
                                                      "文件保存",
                                                      "/home",
@@ -600,6 +619,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             QMessageBox.information(self, "导出成功", self.tr("保存为： "+fileName))
 
     def enable_auto_update(self):
+        """
+        开启自动更新
+        :return:
+        """
         self.action_8.setChecked(True)
         self.action_9.setChecked(False)
         self.v2rayL.subscribe(True)
@@ -607,6 +630,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(self.status)
 
     def disable_auto_update(self):
+        """
+        关闭自动更新
+        :return:
+        """
         self.action_8.setChecked(False)
         self.action_9.setChecked(True)
         self.v2rayL.subscribe(False)
@@ -614,16 +641,28 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(self.status)
 
     def start_ping_th(self):
+        """
+        开始ping测延时
+        :return:
+        """
         self.ping_start.start()
 
     def output_conf_by_uri(self):
+        """
+        输出分享链接
+        :return:
+        """
         row = self.tableView.currentIndex().row()
         region = self.tableView.model().item(row, 0).text()
         ret = self.v2rayL.subs.conf2b64(region)
         QMessageBox.information(self, "分享链接", self.tr(ret))
 
-
     def event(self, QEvent):
+        """
+        使得statusbar始终显示内容
+        :param QEvent:
+        :return:
+        """
         if QEvent.type() == QEvent.StatusTip:
             if QEvent.tip() == "":
                 QEvent = QStatusTipEvent(self.status)  # 此处为要始终显示的内容

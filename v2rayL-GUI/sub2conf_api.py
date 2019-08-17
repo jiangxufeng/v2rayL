@@ -159,7 +159,9 @@ class Sub2Conf(object):
                 self.b642conf("ss", 0, op[1])
             else:
                 raise MyException("无法解析的链接格式")
-        except Exception:
+        except Exception as e:
+            if e.args[0] == "无法解析的链接格式":
+                raise MyException("无法解析的链接格式")
             raise MyException("解析失败，请在github提交错误")
 
         self.conf = dict(self.saved_conf['local'], **self.saved_conf['subs'])

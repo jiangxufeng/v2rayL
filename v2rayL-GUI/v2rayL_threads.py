@@ -83,7 +83,6 @@ class UpdateSubsThread(QThread):
                 self.sinOut.emit(("addr", "@@OK@@", "订阅地址更新成功！", None))
         else:
             url = self.v2rayL.url
-            print(url)
             if not url:
                 self.sinOut.emit(("update", "@@Fail@@", "不存在订阅地址，无法更新", None))
             else:
