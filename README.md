@@ -43,7 +43,7 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 
 # 首页展示
 
-![首页](http://cloud.thinker.ink/images/af66fb3e92e9e4a94c9e01105e0db625.png)
+![首页](http://cloud.thinker.ink/images/0bbd5564f4c123f24089d9134bcd6fe0.png)
 
 # License
 

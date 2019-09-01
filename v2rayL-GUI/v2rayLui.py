@@ -79,11 +79,20 @@ class Ui_MainWindow(object):
         self.disconnect_ui = QAction(QIcon("/etc/v2rayL/images/no2.png"), "断开连接", self)
         self.toolBar.addAction(self.disconnect_ui)
 
+        self.update_ui = QAction(QIcon("/etc/v2rayL/images/up.png"), "更新订阅", self)
+        self.toolBar.addAction(self.update_ui)
+
         self.delconf_ui = QAction(QIcon("/etc/v2rayL/images/del.png"), "删除当前配置", self)
         self.toolBar.addAction(self.delconf_ui)
 
         self.ping_ui = QAction(QIcon("/etc/v2rayL/images/ping.png"), "测试延时", self)
         self.toolBar.addAction(self.ping_ui)
+
+        self.uri_share_ui = QAction(QIcon("/etc/v2rayL/images/us.png"), "生成分享链接", self)
+        self.toolBar.addAction(self.uri_share_ui)
+
+        self.qr_share_ui = QAction(QIcon("/etc/v2rayL/images/qr.png"), "生成分享二维码", self)
+        self.toolBar.addAction(self.qr_share_ui)
 
         self.action = QAction(MainWindow)
         self.action.setObjectName("action")
@@ -404,15 +413,18 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.confs_child_ui.pushButton_2.clicked.connect(self.confs_ui_hide)  # 显示配置窗口
         self.subs_child_ui.pushButton.clicked.connect(self.change_subs_addr)  # 更新订阅操作
         self.confs_child_ui.pushButton.clicked.connect(self.get_conf_from_uri)  # 解析URI获取配置
-        self.connect_ui.triggered.connect(self.start_conn_th)  # 绑定开启连接线程
+        self.connect_ui.triggered.connect(self.start_conn_th)  # toolbar绑定开启连接线程
         self.conn_start.sinOut.connect(self.alert)  # 得到连接反馈
-        self.disconnect_ui.triggered.connect(self.end_conn_th)  # 绑定断开连接线程
+        self.disconnect_ui.triggered.connect(self.end_conn_th)  # toolbar绑定断开连接线程
+        self.update_ui.triggered.connect(self.update_subs)  # toolbar绑定更新订阅
+        self.qr_share_ui.triggered.connect(self.output_conf_by_qr)  # toolbar绑定分享二维码
+        self.uri_share_ui.triggered.connect(self.output_conf_by_uri)  # toolbar绑定分享链接
         self.disconn_start.sinOut.connect(self.alert)  # 得到断开连接反馈
         self.tableView.doubleClicked.connect(self.start_conn_th)  # 双击配置连接
-        self.delconf_ui.triggered.connect(self.del_conf)  # 移除配置
+        self.delconf_ui.triggered.connect(self.del_conf)  # toolbar移除配置
         self.update_addr_start.sinOut.connect(self.alert)  # 得到反馈
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
-        self.ping_ui.triggered.connect(self.start_ping_th)  # 绑定ping程序
+        self.ping_ui.triggered.connect(self.start_ping_th)  # toolbar绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
         self.CN.triggered.connect(self.start_conn_th)  # 右键菜单连接绑定
         self.DISCN.triggered.connect(self.end_conn_th)  # 右键菜单断开连接绑定
