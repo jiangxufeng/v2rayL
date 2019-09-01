@@ -24,10 +24,21 @@ v2ray linux 客户端1.1，使用pyqt5编写GUI界面，核心基于v2ray-core
 目前程序可能存在一些bug但是没有测试出，若在使用过程中发现bug，请在issue中提交，以便改进。
 
 # Usage
-```
-① 在release中下载最新版本压缩包，并解压缩
 
-② 在解压缩后目录运行 ./install.sh
+## 安装
+```
+① 在release中下载最新版本的install.sh
+```
+```
+② 运行 ./install.sh
+```
+
+## 更新
+```
+① 在release中下载最新版本的update.sh
+```
+```
+② 运行 ./update.sh
 ```
 
 # 首页展示

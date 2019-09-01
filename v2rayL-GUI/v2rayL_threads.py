@@ -96,7 +96,7 @@ class UpdateSubsThread(QThread):
 
 class PingThread(QThread):
     """
-    断开连接线程
+    测试延时线程
     """
     sinOut = pyqtSignal(tuple)
 

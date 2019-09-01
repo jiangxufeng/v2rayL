@@ -59,6 +59,9 @@ class Sub2Conf(object):
             region = string[1]
 
         ret["prot"] = prot
+        if tp == 0:
+            if region in self.saved_conf["subs"]:
+                region = region + "_local"
         self.saved_conf[["local", "subs"][tp]][region] = ret
 
     def setconf(self, region):

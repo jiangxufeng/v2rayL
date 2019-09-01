@@ -2,6 +2,7 @@
 # Author: Suummmmer
 # Date: 2019-08-13
 
+import requests
 from PyQt5.QtWidgets import (
     QLabel, 
     QAbstractItemView, 
@@ -26,11 +27,14 @@ from PyQt5.QtWidgets import (
     qApp
 )
 
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon, QStatusTipEvent, QCursor       
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon, QStatusTipEvent, QPixmap, QCursor
 from PyQt5.QtCore import Qt, QSize, QRect, QCoreApplication, QMetaObject
 from v2rayL_api import V2rayL, MyException
 from datetime import datetime
+import pyzbar.pyzbar as pyzbar
+from PIL import Image
 from v2rayL_threads import ConnectThread, DisConnectThread, UpdateSubsThread, PingThread
+
 
 
 class Ui_MainWindow(object):
@@ -56,6 +60,8 @@ class Ui_MainWindow(object):
         self.menu.setObjectName("menu")
         self.menu_3 = QMenu(self.menu)
         self.menu_3.setObjectName("menu_3")
+        self.menu_1 = QMenu(self.menu)
+        self.menu_1.setObjectName("menu_1")
         self.menu_4 = QMenu(self.menubar)
         self.menu_4.setObjectName("menu_4")
         self.menu_5 = QMenu(self.menu_4)
@@ -83,8 +89,6 @@ class Ui_MainWindow(object):
         self.action.setObjectName("action")
         self.action_2 = QAction(MainWindow)
         self.action_2.setObjectName("action_2")
-        self.action_4 = QAction(MainWindow)
-        self.action_4.setObjectName("action_4")
         self.action_5 = QAction(MainWindow)
         self.action_5.setObjectName("action_5")
         self.action_5.setShortcut('Ctrl+Q')
@@ -99,27 +103,32 @@ class Ui_MainWindow(object):
         self.action_9.setObjectName("action_9")
         self.action_10 = QAction(MainWindow)
         self.action_10.setObjectName("action_10")
-        self.action_10.setShortcut('F3')
-        self.action_11 = QAction(MainWindow)
-        self.action_11.setObjectName("action_11")
-        self.action_11.setShortcut('F4')
+        self.action_10.setShortcut('F1')
         self.action_24 = QAction(MainWindow)
         self.action_24.setObjectName("action_24")
-        self.action_24.setShortcut('F1')
+        self.action_24.setShortcut('F2')
         self.action_25 = QAction(MainWindow)
         self.action_25.setObjectName("action_25")
-        self.action_25.setShortcut('F2')
+        self.action_25.setShortcut('F3')
         self.action_26 = QAction(MainWindow)
         self.action_26.setObjectName("action_26")
         self.action_26.setShortcut('Ctrl+H')
+        self.action_27 = QAction(MainWindow)
+        self.action_27.setObjectName("action_27")
+        self.action_27.setShortcut('F4')
+        self.action_28 = QAction(MainWindow)
+        self.action_28.setObjectName("action_28")
+        self.action_28.setShortcut('F5')
 
+        self.menu.addAction(self.action_10)
+        self.menu.addSeparator()
         self.menu_3.addAction(self.action_24)
         self.menu_3.addAction(self.action_25)
         self.menu.addAction(self.menu_3.menuAction())
         self.menu.addSeparator()
-        self.menu.addAction(self.action_10)
-        self.menu.addSeparator()
-        self.menu.addAction(self.action_11)
+        self.menu_1.addAction(self.action_27)
+        self.menu_1.addAction(self.action_28)
+        self.menu.addAction(self.menu_1.menuAction())
         self.menu.addSeparator()
         self.menu_5.addAction(self.action_8)
         self.menu_5.addAction(self.action_9)
@@ -149,23 +158,25 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "V2rayL"))
         MainWindow.setWindowIcon(QIcon("/etc/v2rayL/images/logo.png"))
         self.menu.setTitle(_translate("MainWindow", "配置"))
-        self.menu_3.setTitle(_translate("MainWindow", "添加配置"))
+        self.menu_3.setTitle(_translate("MainWindow", "添加"))
         self.menu_4.setTitle(_translate("MainWindow", "订阅"))
         self.menu_5.setTitle(_translate("MainWindow", "自动更新"))
         self.menu_2.setTitle(_translate("MainWindow", "帮助"))
+        self.menu_1.setTitle(_translate("MainWindow", "分享"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.action.setText(_translate("MainWindow", "订阅设置"))
         self.action_2.setText(_translate("MainWindow", "更新订阅"))
-        self.action_4.setText(_translate("MainWindow", "二维码获取配置"))
         self.action_5.setText(_translate("MainWindow", "地址设置"))
         self.action_6.setText(_translate("MainWindow", "更新订阅"))
         self.action_8.setText(_translate("MainWindow", "开启"))
         self.action_9.setText(_translate("MainWindow", "关闭"))
-        self.action_10.setText(_translate("MainWindow", "导出当前配置"))
-        self.action_11.setText(_translate("MainWindow", "分享当前配置"))
+        self.action_10.setText(_translate("MainWindow", "导出"))
         self.action_24.setText(_translate("MainWindow", "通过链接"))
         self.action_25.setText(_translate("MainWindow", "通过二维码"))
         self.action_26.setText(_translate("MainWindow", "说明"))
+        self.action_27.setText(_translate("MainWindow", "链接分享"))
+        self.action_28.setText(_translate("MainWindow", "二维码分享"))
+
 
 class Ui_Subs_Dialog(object):
     def setupUi(self, Dialog):
@@ -231,6 +242,30 @@ class Ui_Conf_Dialog(object):
         self.label_2.setText(_translate("Dialog", "注：目前只支持vmess://和ss://格式的连接"))
         self.pushButton.setText(_translate("Dialog", "确定"))
         self.pushButton_2.setText(_translate("Dialog", "取消"))
+
+
+class Ui_Qr_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(218, 218)
+        Dialog.setMinimumSize(QSize(218, 218))
+        Dialog.setMaximumSize(QSize(218, 218))
+        self.gridLayout = QGridLayout(Dialog)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QLabel(Dialog)
+        self.label.setEnabled(True)
+        self.label.setMinimumSize(QSize(200, 200))
+        self.label.setMaximumSize(QSize(200, 200))
+        self.label.setText("")
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+
+        self.retranslateUi(Dialog)
+        QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "二维码分享配置"))
 
 
 class CenterDelegate(QItemDelegate):
@@ -310,6 +345,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.confui = QDialog()
         self.confs_child_ui = Ui_Conf_Dialog()
         self.confs_child_ui.setupUi(self.confui)
+        # 二维码分享配置窗口
+        self.qr_ui = QDialog()
+        self.qr_child_ui = Ui_Qr_Dialog()
+        self.qr_child_ui.setupUi(self.qr_ui)
+
         self.status_format = "当前状态: {}\t\t\t\t\t\t自动更新: {}"
         # 获取api操作
         self.v2rayL = V2rayL()
@@ -354,10 +394,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.action_6.triggered.connect(self.update_subs)  # 更新订阅
         self.action_8.triggered.connect(self.enable_auto_update)  # 开启自动更新订阅
         self.action_9.triggered.connect(self.disable_auto_update)  # 关闭自动更新订阅
-        self.action_24.triggered.connect(self.confs_ui_show)  # 显示配置窗口
         self.action_10.triggered.connect(self.output_conf)  # 导出配置文件
-        self.action_11.triggered.connect(self.output_conf_by_uri)  # 生成分享链接
+        self.action_24.triggered.connect(self.confs_ui_show)  # 显示配置窗口
+        self.action_25.triggered.connect(self.get_conf_from_qr)  # 通过二维码导入
         self.action_26.triggered.connect(self.help)  # 显示帮助说明信息
+        self.action_27.triggered.connect(self.output_conf_by_uri)  # 生成分享链接
+        self.action_28.triggered.connect(self.output_conf_by_qr)  # 生成分享二维码
         self.subs_child_ui.pushButton_2.clicked.connect(self.subs_ui_hide)  # 关闭订阅地址窗口
         self.confs_child_ui.pushButton_2.clicked.connect(self.confs_ui_hide)  # 显示配置窗口
         self.subs_child_ui.pushButton.clicked.connect(self.change_subs_addr)  # 更新订阅操作
@@ -372,19 +414,18 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
         self.ping_ui.triggered.connect(self.start_ping_th)  # 绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
-        self.CN.triggered.connect(self.start_conn_th)
-        self.DISCN.triggered.connect(self.end_conn_th)
-        self.customContextMenuRequested.connect(self.rightMenuShow)
-
+        self.CN.triggered.connect(self.start_conn_th)  # 右键菜单连接绑定
+        self.DISCN.triggered.connect(self.end_conn_th)  # 右键菜单断开连接绑定
+        self.customContextMenuRequested.connect(self.rightMenuShow)  # 显示右键菜单
         # 设置最小化到托盘
         self.tray()
 
     def help(self):
         QMessageBox.about(self, "说明", 
-            self.tr("1. v2rayL当前版本：v1.1\n" \
-                "2. github地址：https://github.com/jiangxufeng/v2rayL\n" \
-                "3. 目前支持协议有：Vmess、shadowsocks\n4. 目前仅支持通过分享链接导入配置\n" \
-                "5. 双击选中配置可直接进行连接\n6. 程序可能存在为测试到的Bug，使用过程中发现Bug请在github提交"))
+            self.tr("1. v2rayL当前版本：v1.1.4\n"
+                    "2. github地址：https://github.com/jiangxufeng/v2rayL\n"
+                    "3. 目前支持协议有：Vmess、shadowsocks\n4. 支持通过分享链接、二维码导入和分享配置\n"
+                    "5. 双击选中配置可直接进行连接\n6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
 
     def tray(self):
         # 创建托盘程序
@@ -470,7 +511,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_addr_start.v2rayL = self.v2rayL
         self.update_addr_start.subs_child_ui = self.subs_child_ui
         if not url:
-            choice = QMessageBox.warning(self, "订阅地址更新", self.tr("当前订阅地址为空，继续则删除订阅地址，是否继续？"),
+            choice = QMessageBox.warning(self, "订阅地址更新", self.tr("当前订阅地址为空，"
+                                                                 "继续则删除订阅地址，同时会删除所有订阅配置，"
+                                                                 "是否继续？"),
                                          QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)
             if choice == QMessageBox.Ok:
                 self.statusbar.showMessage("正在更新订阅地址......")
@@ -492,6 +535,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         """
         self.update_subs_start.v2rayL = self.v2rayL
         self.update_subs_start.subs_child_ui = None
+        self.statusbar.showMessage("正在更新订阅......")
         self.update_subs_start.start()
 
     def get_conf_from_uri(self):
@@ -516,6 +560,27 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
                 self.confs_child_ui.lineEdit.setText("")
+
+    def get_conf_from_qr(self):
+        """
+        从二维码导入配置
+        :return:
+        """
+        fname, ok = QFileDialog.getOpenFileName(self, '选择二维码图片', '/home', 'Image files(*.jpg *.png)')
+        if ok:
+            try:
+                barcode = pyzbar.decode(Image.open(fname))
+            except:
+                QMessageBox.critical(self, "二维码解析错误", "无法解析该二维码。")
+            else:
+                try:
+                    self.v2rayL.addconf(barcode[0].data.decode("utf-8"))
+                except MyException as e:
+                    QMessageBox.critical(self, "错误", self.tr(e.args[0]))
+                else:
+                    QMessageBox.information(self, "完成", self.tr("配置添加成功！"))
+                    self.v2rayL = V2rayL()
+                    self.display_all_conf()
 
     def del_conf(self):
         """
@@ -656,6 +721,29 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         region = self.tableView.model().item(row, 0).text()
         ret = self.v2rayL.subs.conf2b64(region)
         QMessageBox.information(self, "分享链接", self.tr(ret))
+
+    def output_conf_by_qr(self):
+        """
+        输出分享二维码
+        :return:
+        """
+        row = self.tableView.currentIndex().row()
+        region = self.tableView.model().item(row, 0).text()
+        ret = self.v2rayL.subs.conf2b64(region)
+        # 生成二维码
+        url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
+        try:
+            req = requests.get(url)
+            if req.status_code == 200:
+                qr = QPixmap()
+                qr.loadFromData(req.content)
+                self.qr_child_ui.label.setPixmap(qr)
+                self.qr_child_ui.label.setScaledContents(True)
+                self.qr_ui.show()
+            else:
+                QMessageBox.critical(self, "错误", self.tr("服务错误，可能原因：调用API发生错误"))
+        except:
+            QMessageBox.critical(self, "错误", self.tr("服务错误，请将错误在github中提交"))
 
     def event(self, QEvent):
         """

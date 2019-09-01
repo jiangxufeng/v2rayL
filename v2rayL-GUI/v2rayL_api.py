@@ -75,8 +75,21 @@ class V2rayL(object):
                 pickle.dump((self.current, url, self.auto), jf)
 
         else:
-            with open("/etc/v2rayL/current", "wb") as jf:
-                pickle.dump((self.current, None, False), jf)
+            if self.current in self.subs.saved_conf["subs"]:
+                try:
+                    self.disconnect()
+                except:
+                    pass
+
+                with open("/etc/v2rayL/current", "wb") as jf:
+                    pickle.dump(("未连接至VPN", None, False), jf)
+
+            else:
+                with open("/etc/v2rayL/current", "wb") as jf:
+                    pickle.dump((self.current, None, False), jf)
+
+            with open("/etc/v2rayL/data", "wb") as f:
+                pickle.dump({"local": self.subs.saved_conf["local"], "subs": {}}, f)
 
     def addconf(self, uri):
         self.subs = Sub2Conf(conf_url=uri)
@@ -92,7 +105,6 @@ class V2rayL(object):
             return res.group(1)
         except:
             raise MyException("测试超时")
-
 
 
 if __name__ == '__main__':
