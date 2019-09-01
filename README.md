@@ -9,15 +9,15 @@ V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 ![v2rayL](http://cloud.thinker.ink/images/v2rayLlogo.png)
 
-v2ray linux 客户端1.1，使用pyqt5编写GUI界面，核心基于v2ray-core
+v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 
 目前已实现以下功能：
 
 - 添加订阅地址，自动解析并展示可连接VPN
 - 设置自动更新订阅、更换地址
 - 支持协议：vmess、shadowsocks
-- 通过`vmess://`、`ss://`分享链接添加配置
-- 导出配置、生成配置分享链接
+- 通过`vmess://`、`ss://`分享链接添加配置，通过二维码添加配置
+- 导出配置、生成配置分享链接、生成分享二维码
 - 最小化至托盘、测试延时、右键菜单
 - ......
 
