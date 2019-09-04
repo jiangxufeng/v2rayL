@@ -3,7 +3,11 @@
 # Date: 2019-08-13
 
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMessageBox
 from sub2conf_api import MyException
+import subprocess
+import requests
+
 
 
 class ConnectThread(QThread):
@@ -23,7 +27,7 @@ class ConnectThread(QThread):
         try:
             row = self.tableView.currentIndex().row()
             region = self.tableView.model().item(row, 0).text()    
-        except Exception as e:
+        except AttributeError:
             self.sinOut.emit(("conn", "@@Fail@@", "未选中配置无法连接，请导入配置后再次连接", None))
         else:
             try:
@@ -115,5 +119,70 @@ class PingThread(QThread):
             ret = self.v2rayL.ping(addr)
         except MyException as e:
             self.sinOut.emit(("ping", "@@Fail@@", e.args[0], None))
+        except AttributeError:
+            self.sinOut.emit(("ping", "@@Fail@@", "请选择需要测试的配置.", None))
         else:
             self.sinOut.emit(("ping", "@@OK@@", ret.strip(), None))
+
+
+class CheckUpdateThread(QThread):
+    """
+    测试延时线程
+    """
+    sinOut = pyqtSignal(tuple)
+
+    def __init__(self, version=None, parent=None):
+        super(CheckUpdateThread, self).__init__(parent)
+        self.version = version
+
+    def __del__(self):
+        # 线程状态改变与线程终止
+        self.wait()
+
+    def run(self):
+        update_url = "https://api.github.com/repos/jiangxufeng/v2rayL/releases/latest"
+        try:
+            req = requests.get(update_url)
+            if req.status_code != 200:
+                self.sinOut.emit(("ckud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
+            else:
+                latest = req.json()['tag_name']
+                if latest == self.version:
+                    self.sinOut.emit(("ckud", "@@OK@@", "当前版本已是最新版本.", None))
+                else:
+                    self.sinOut.emit(("ckud", "@@OK@@", "正在后台进行更新..", req))
+        except Exception as e:
+            self.sinOut.emit(("ckud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试."+e.args[0], None))
+
+
+class VersionUpdateThread(QThread):
+    """
+    测试延时线程
+    """
+    sinOut = pyqtSignal(tuple)
+
+    def __init__(self, update_url=None, parent=None):
+        super(VersionUpdateThread, self).__init__(parent)
+        self.url = update_url
+
+    def __del__(self):
+        # 线程状态改变与线程终止
+        self.wait()
+
+    def run(self):
+        try:
+            req = requests.get(self.url)
+            if req.status_code != 200:
+                self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
+            else:
+                print(1)
+                with open("/etc/v2rayL/update.sh", 'w') as f:
+                    f.write(req.text)
+
+                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/update.sh"], shell=True)
+
+                self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
+
+        except Exception as e:
+            self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试."+e.args[0], None))
+

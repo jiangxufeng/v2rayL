@@ -43,7 +43,7 @@ class Sub2Conf(object):
             ret = eval(base64.b64decode(b64str).decode())
             region = ret['ps']
 
-        elif prot == "ss":
+        elif prot == "shadowsocks":
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
@@ -75,22 +75,49 @@ class Sub2Conf(object):
                 "users": [
                     {
                         "id": use_conf["id"],
-                        "alterId": use_conf["aid"]
+                        "alterId": int(use_conf["aid"]),
+                        "security": "auto",
+                        "level": 8,
                     }
                 ]
             })
-
-            conf['outbounds'][0]["streamSettings"] = {
-                "network": use_conf["net"],
-                "wsSettings": {
-                    "path": use_conf["path"],
-                    "headers": {
-                        "Host": use_conf['host']
+            # webSocket 协议
+            if use_conf["net"] == "ws":
+                conf['outbounds'][0]["streamSettings"] = {
+                    "network": use_conf["net"],
+                    "security": "tls" if use_conf["tls"] else "",
+                    "tlssettings": {
+                        "allowInsecure": True,
+                        "serverName": use_conf["tls"]
+                    },
+                    "wssettings": {
+                        "connectionReuse": True,
+                        "headers": {
+                            "Host": use_conf['host']
+                        },
+                        "path": use_conf["path"]
                     }
                 }
-            }
+            # mKcp协议
+            elif use_conf["net"] == "kcp":
+                conf['outbounds'][0]["streamSettings"] = {
+                    "network": use_conf["net"],
+                    "kcpsettings": {
+                        "congestion": False,
+                        "downlinkCapacity": 100,
+                        "header": {
+                            "type": use_conf["type"] if use_conf["type"] else "none"
+                        },
+                        "mtu": 1350,
+                        "readBufferSize": 1,
+                        "tti": 50,
+                        "uplinkCapacity": 12,
+                        "writeBufferSize": 1
+                    },
+                    "security": ""
+                }
 
-        elif use_conf['prot'] == "ss":
+        elif use_conf['prot'] == "shadowsocks":
             conf['outbounds'][0]["protocol"] = "shadowsocks"
             conf['outbounds'][0]["settings"]["servers"] = list()
             conf['outbounds'][0]["settings"]["servers"].append({
@@ -143,7 +170,7 @@ class Sub2Conf(object):
             if ori[0] == "vmess":
                 self.b642conf("vmess", 1, ori[1])
             elif ori[0] == "ss":
-                self.b642conf("ss", 1, ori[1])
+                self.b642conf("shadowsocks", 1, ori[1])
 
         self.conf = dict(self.saved_conf['local'], **self.saved_conf['subs'])
 
@@ -159,7 +186,7 @@ class Sub2Conf(object):
             if op[0] == "vmess":
                 self.b642conf("vmess", 0, op[1])
             elif op[0] == "ss":
-                self.b642conf("ss", 0, op[1])
+                self.b642conf("shadowsocks", 0, op[1])
             else:
                 raise MyException("无法解析的链接格式")
         except Exception as e:

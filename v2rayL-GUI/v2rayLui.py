@@ -33,7 +33,14 @@ from v2rayL_api import V2rayL, MyException
 from datetime import datetime
 import pyzbar.pyzbar as pyzbar
 from PIL import Image
-from v2rayL_threads import ConnectThread, DisConnectThread, UpdateSubsThread, PingThread
+from v2rayL_threads import (
+    ConnectThread,
+    DisConnectThread,
+    UpdateSubsThread,
+    PingThread,
+    CheckUpdateThread,
+    VersionUpdateThread
+)
 
 
 
@@ -68,6 +75,8 @@ class Ui_MainWindow(object):
         self.menu_5.setObjectName("menu_5")
         self.menu_2 = QMenu(self.menubar)
         self.menu_2.setObjectName("menu_2")
+        self.menu_6 = QMenu(self.menubar)
+        self.menu_6.setObjectName("menu_6")
         MainWindow.setMenuBar(self.menubar)
         self.toolBar = QToolBar(MainWindow)
         self.toolBar.setObjectName("toolBar")
@@ -94,40 +103,28 @@ class Ui_MainWindow(object):
         self.qr_share_ui = QAction(QIcon("/etc/v2rayL/images/qr.png"), "生成分享二维码", self)
         self.toolBar.addAction(self.qr_share_ui)
 
-        self.action = QAction(MainWindow)
-        self.action.setObjectName("action")
-        self.action_2 = QAction(MainWindow)
-        self.action_2.setObjectName("action_2")
         self.action_5 = QAction(MainWindow)
         self.action_5.setObjectName("action_5")
-        self.action_5.setShortcut('Ctrl+Q')
         self.action_6 = QAction(MainWindow)
         self.action_6.setObjectName("action_6")
-        self.action_6.setShortcut('Ctrl+W')
         self.action_8 = QAction(MainWindow, checkable=True)
         self.action_8.setObjectName("action_8")
-        self.action_8.setShortcut('Ctrl+D')
         self.action_9 = QAction(MainWindow, checkable=True)
-        self.action_9.setShortcut('Ctrl+F')
         self.action_9.setObjectName("action_9")
         self.action_10 = QAction(MainWindow)
         self.action_10.setObjectName("action_10")
-        self.action_10.setShortcut('F1')
         self.action_24 = QAction(MainWindow)
         self.action_24.setObjectName("action_24")
-        self.action_24.setShortcut('F2')
         self.action_25 = QAction(MainWindow)
         self.action_25.setObjectName("action_25")
-        self.action_25.setShortcut('F3')
         self.action_26 = QAction(MainWindow)
         self.action_26.setObjectName("action_26")
-        self.action_26.setShortcut('Ctrl+H')
         self.action_27 = QAction(MainWindow)
         self.action_27.setObjectName("action_27")
-        self.action_27.setShortcut('F4')
         self.action_28 = QAction(MainWindow)
         self.action_28.setObjectName("action_28")
-        self.action_28.setShortcut('F5')
+        self.action_29 = QAction(MainWindow)
+        self.action_29.setObjectName("action_29")
 
         self.menu.addAction(self.action_10)
         self.menu.addSeparator()
@@ -147,11 +144,13 @@ class Ui_MainWindow(object):
         self.menu_4.addSeparator()
         self.menu_4.addAction(self.menu_5.menuAction())
         self.menu_4.addSeparator()
-        self.menu_2.addSeparator()
         self.menu_2.addAction(self.action_26)
         self.menu_2.addSeparator()
+        self.menu_6.addAction(self.action_29)
+        self.menu_6.addSeparator()
         self.menubar.addAction(self.menu.menuAction())
         self.menubar.addAction(self.menu_4.menuAction())
+        self.menubar.addAction(self.menu_6.menuAction())
         self.menubar.addAction(self.menu_2.menuAction())
         self.rightMenu = QMenu(self)
         self.CN = self.rightMenu.addAction('连接')
@@ -165,16 +164,15 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):    
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "V2rayL"))
-        MainWindow.setWindowIcon(QIcon("/etc/v2rayL/images/logo.png"))
+        MainWindow.setWindowIcon(QIcon("/etc/v2rayL/images/logo.ico"))
         self.menu.setTitle(_translate("MainWindow", "配置"))
         self.menu_3.setTitle(_translate("MainWindow", "添加"))
         self.menu_4.setTitle(_translate("MainWindow", "订阅"))
         self.menu_5.setTitle(_translate("MainWindow", "自动更新"))
         self.menu_2.setTitle(_translate("MainWindow", "帮助"))
         self.menu_1.setTitle(_translate("MainWindow", "分享"))
+        self.menu_6.setTitle(_translate("MainWindow", "设置"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
-        self.action.setText(_translate("MainWindow", "订阅设置"))
-        self.action_2.setText(_translate("MainWindow", "更新订阅"))
         self.action_5.setText(_translate("MainWindow", "地址设置"))
         self.action_6.setText(_translate("MainWindow", "更新订阅"))
         self.action_8.setText(_translate("MainWindow", "开启"))
@@ -185,6 +183,7 @@ class Ui_MainWindow(object):
         self.action_26.setText(_translate("MainWindow", "说明"))
         self.action_27.setText(_translate("MainWindow", "链接分享"))
         self.action_28.setText(_translate("MainWindow", "二维码分享"))
+        self.action_29.setText(_translate("MainWindow", "检查更新"))
 
 
 class Ui_Subs_Dialog(object):
@@ -300,7 +299,7 @@ class SystemTray(object):
 
     def initUI(self):
         # 设置托盘图标
-        self.tp.setIcon(QIcon('/etc/v2rayL/images/logo.png'))
+        self.tp.setIcon(QIcon('/etc/v2rayL/images/logo.ico'))
 
     def quitApp(self):
         # 退出程序
@@ -322,11 +321,13 @@ class SystemTray(object):
             self.w.show()
 
     def run(self):
-        a1 = QAction('&显示(Show)', triggered=self.w.show)
-        a2 = QAction('&退出(Exit)', triggered=self.quitApp)
+        a1 = QAction('恢复(Show)', triggered=self.w.show)
+        a2 = QAction('帮助(Help)', triggered=self.w.help)
+        a3 = QAction('退出(Exit)', triggered=self.quitApp)
         tpMenu = QMenu()
         tpMenu.addAction(a1)
         tpMenu.addAction(a2)
+        tpMenu.addAction(a3)
         self.tp.setContextMenu(tpMenu)
         self.tp.show()  # 不调用show不会显示系统托盘消息，图标隐藏无法调用
 
@@ -342,7 +343,7 @@ class SystemTray(object):
         sys.exit(self.app.exec_())  # 持续对app的连接
 
 
-class MyMainWindow(QMainWindow, Ui_MainWindow):
+class MyMainWindow(QMainWindow, Ui_MainWindow, SystemTray):
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__(parent)
         self.setupUi(self)
@@ -358,6 +359,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.qr_ui = QDialog()
         self.qr_child_ui = Ui_Qr_Dialog()
         self.qr_child_ui.setupUi(self.qr_ui)
+        self.version = "2.0.0"
 
         self.status_format = "当前状态: {}\t\t\t\t\t\t自动更新: {}"
         # 获取api操作
@@ -387,7 +389,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.display_all_conf()
         self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"), "NaN")
         self.statusbar.showMessage(self.status)
-                                   
 
         # 开启连接线程
         self.conn_start = ConnectThread()
@@ -398,6 +399,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_subs_start = UpdateSubsThread()
 
         self.ping_start = PingThread(tv=(self.tableView, self.v2rayL))
+
+        # 检查版本更新线程
+        self.check_update_start = CheckUpdateThread(version=self.version)
+        # 更新版本线程
+        self.version_update_start = VersionUpdateThread()
         # 事件绑定
         self.action_5.triggered.connect(self.subs_ui_show)  # 显示订阅地址窗口
         self.action_6.triggered.connect(self.update_subs)  # 更新订阅
@@ -409,6 +415,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.action_26.triggered.connect(self.help)  # 显示帮助说明信息
         self.action_27.triggered.connect(self.output_conf_by_uri)  # 生成分享链接
         self.action_28.triggered.connect(self.output_conf_by_qr)  # 生成分享二维码
+        self.action_29.triggered.connect(self.check_update)  # 检查更新
         self.subs_child_ui.pushButton_2.clicked.connect(self.subs_ui_hide)  # 关闭订阅地址窗口
         self.confs_child_ui.pushButton_2.clicked.connect(self.confs_ui_hide)  # 显示配置窗口
         self.subs_child_ui.pushButton.clicked.connect(self.change_subs_addr)  # 更新订阅操作
@@ -426,22 +433,43 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
         self.ping_ui.triggered.connect(self.start_ping_th)  # toolbar绑定ping程序
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
+        self.check_update_start.sinOut.connect(self.alert)
+        self.version_update_start.sinOut.connect(self.alert)
         self.CN.triggered.connect(self.start_conn_th)  # 右键菜单连接绑定
         self.DISCN.triggered.connect(self.end_conn_th)  # 右键菜单断开连接绑定
         self.customContextMenuRequested.connect(self.rightMenuShow)  # 显示右键菜单
         # 设置最小化到托盘
-        self.tray()
+        SystemTray(self)
 
     def help(self):
         QMessageBox.about(self, "说明", 
-            self.tr("1. v2rayL当前版本：v1.1.4\n"
+            self.tr("1. v2rayL当前版本：v2.0.1\n"
                     "2. github地址：https://github.com/jiangxufeng/v2rayL\n"
                     "3. 目前支持协议有：Vmess、shadowsocks\n4. 支持通过分享链接、二维码导入和分享配置\n"
                     "5. 双击选中配置可直接进行连接\n6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
 
-    def tray(self):
-        # 创建托盘程序
-        ti = SystemTray(self)
+    def check_update(self):
+        # update_url = "https://api.github.com/repos/jiangxufeng/v2rayL/releases/latest"
+        # try:
+        #     req = requests.get(update_url)
+        #     if req.status_code != 200:
+        #         QMessageBox.critical(self, "检查更新", self.tr("网络错误，请检查网络连接或稍后再试."))
+        #     else:
+        #         latest = req.json()['tag_name']
+        #         if latest == self.version:
+        #             QMessageBox.information(self, "检查更新", self.tr("当前版本已是最新版本."))
+        #         else:
+        #             choice = QMessageBox.question(self, "检查更新", "最新版本: v{}"
+        #                                                         "\n更新内容:\n{}\n是否更新？".format(req.json()['tag_name'],
+        #                                                         req.json()['body']),
+        #                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+        #             if choice == QMessageBox.Yes:
+        #                 pass
+        # except Exception as e:
+        #     self.statusbar.showMessage(self.status)
+        #     QMessageBox.critical(self, "检查更新", self.tr("网络错误，请检查网络连接或稍后再试."+e.args[0]))
+        self.statusbar.showMessage("正在检查版本更新....")
+        self.check_update_start.start()
 
     def rightMenuShow(self, pos):
         self.rightMenu.exec_(QCursor.pos()) 
@@ -599,17 +627,21 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         移除一个配置
         :return:
         """
-        row = self.tableView.currentIndex().row()
-        region = self.tableView.model().item(row, 0).text()
-        if self.v2rayL.current == region:
-            QMessageBox.critical(self, "移除失败", self.tr("当前配置正在使用，无法移除."))
+        try:
+            row = self.tableView.currentIndex().row()
+            region = self.tableView.model().item(row, 0).text()
+        except AttributeError:
+            QMessageBox.information(self, "移除通知", self.tr("未选择任何配置."))
         else:
-            try:
-                self.v2rayL.delconf(region)
-            except MyException as e:
-                QMessageBox.critical(self, "移除失败", self.tr(e.args[0]))
+            if self.v2rayL.current == region:
+                QMessageBox.information(self, "移除通知", self.tr("当前配置正在使用，无法移除."))
             else:
-                self.display_all_conf()
+                try:
+                    self.v2rayL.delconf(region)
+                except MyException as e:
+                    QMessageBox.critical(self, "移除失败", self.tr(e.args[0]))
+                else:
+                    self.display_all_conf()
 
     def start_conn_th(self):
         """
@@ -675,10 +707,49 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             elif tp == "ping":
                 self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"))+ "\t\t\t\t\t\t所测延时: {}ms".format(ret)
                 self.statusbar.showMessage(self.status)
+
+            elif tp == "ckud":
+                if not row:
+                    self.statusbar.showMessage(self.status)
+                    QMessageBox.information(self, "检查更新", self.tr(ret))
+                else:
+
+                    choice = QMessageBox.question(self, "检查更新", "最新版本: v{}"
+                                                                       "\n更新内容:\n{}\n是否更新？".format(
+                        row.json()['tag_name'],
+                        row.json()['body']),
+                                                  QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                    if choice == QMessageBox.Yes:
+                        self.statusbar.showMessage(ret)
+                        self.version_update_start.url = row.json()["assets"][1]['browser_download_url']
+                        self.version_update_start.start()
+
+            elif tp == "vrud":
+                self.statusbar.showMessage(self.status)
+                QMessageBox.information(self, "更新成功", self.tr(ret))
+
         else:
-            QMessageBox.critical(self, "错误", self.tr(ret))
             if tp == "addr":
+                QMessageBox.critical(self, "地址设置错误", self.tr(ret))
                 self.subs_child_ui.lineEdit.setText(self.v2rayL.url)
+
+            elif tp == "conn":
+                QMessageBox.critical(self, "连接错误", self.tr(ret))
+                self.statusbar.showMessage(self.status)
+                self.connect_ui.setEnabled(True)
+                self.disconnect_ui.setDisabled(True)
+
+            elif tp == "disconn":
+                QMessageBox.critical(self, "断开连接错误", self.tr(ret))
+                self.statusbar.showMessage(self.status)
+
+            elif tp == "ckud":
+                self.statusbar.showMessage(self.status)
+                QMessageBox.critical(self, "检查更新失败", self.tr(ret))
+
+            elif tp == "vrud":
+                self.statusbar.showMessage(self.status)
+                QMessageBox.critical(self, "更新失败", self.tr(ret))
 
     def output_conf(self):
         """
@@ -729,33 +800,41 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         输出分享链接
         :return:
         """
-        row = self.tableView.currentIndex().row()
-        region = self.tableView.model().item(row, 0).text()
-        ret = self.v2rayL.subs.conf2b64(region)
-        QMessageBox.information(self, "分享链接", self.tr(ret))
+        try:
+            row = self.tableView.currentIndex().row()
+            region = self.tableView.model().item(row, 0).text()
+        except AttributeError:
+            QMessageBox.information(self, "分享链接", self.tr("请选择需要分享的配置."))
+        else:
+            ret = self.v2rayL.subs.conf2b64(region)
+            QMessageBox.information(self, "分享链接", self.tr(ret))
 
     def output_conf_by_qr(self):
         """
         输出分享二维码
         :return:
         """
-        row = self.tableView.currentIndex().row()
-        region = self.tableView.model().item(row, 0).text()
-        ret = self.v2rayL.subs.conf2b64(region)
-        # 生成二维码
-        url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
         try:
-            req = requests.get(url)
-            if req.status_code == 200:
-                qr = QPixmap()
-                qr.loadFromData(req.content)
-                self.qr_child_ui.label.setPixmap(qr)
-                self.qr_child_ui.label.setScaledContents(True)
-                self.qr_ui.show()
-            else:
-                QMessageBox.critical(self, "错误", self.tr("服务错误，可能原因：调用API发生错误"))
-        except:
-            QMessageBox.critical(self, "错误", self.tr("服务错误，请将错误在github中提交"))
+            row = self.tableView.currentIndex().row()
+            region = self.tableView.model().item(row, 0).text()
+        except AttributeError:
+            QMessageBox.information(self, "分享二维码", self.tr("请选择需要分享的配置."))
+        else:
+            ret = self.v2rayL.subs.conf2b64(region)
+            # 生成二维码
+            url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
+            try:
+                req = requests.get(url)
+                if req.status_code == 200:
+                    qr = QPixmap()
+                    qr.loadFromData(req.content)
+                    self.qr_child_ui.label.setPixmap(qr)
+                    self.qr_child_ui.label.setScaledContents(True)
+                    self.qr_ui.show()
+                else:
+                    QMessageBox.critical(self, "错误", self.tr("服务错误，可能原因：调用API发生错误"))
+            except:
+                QMessageBox.critical(self, "错误", self.tr("服务错误，请将错误在github中提交"))
 
     def event(self, QEvent):
         """

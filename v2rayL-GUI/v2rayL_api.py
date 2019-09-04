@@ -65,7 +65,7 @@ class V2rayL(object):
             else:
                 raise MyException("服务未开启，无需断开连接.")
         except Exception as e:
-            raise MyException(e)
+            raise MyException(e.args[0])
 
     def update(self, url):
         if url:  # 如果存在订阅地址

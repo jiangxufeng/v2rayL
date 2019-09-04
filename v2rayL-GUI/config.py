@@ -3,51 +3,81 @@
 # Date: 2019-08-13
 
 conf_template = {
-  "log":{},
-  "dns":{},
-  "stats":{},
-  "inbounds":[
-    {
-      "port":"1080",
-      "protocol":"socks",
-      "settings":{
-        "auth":"noauth",
-        "udp": True
-      },
-      "tag":"in-0"
-    }
-  ],
-  "outbounds":[
-    {
-      "protocol":"",
-      "settings":{},
-      "tag":"out-0",
-      "streamSettings":{}
-    },
-    {
-      "tag":"direct",
-      "protocol":"freedom",
-      "settings":{}
-    },
-    {
-      "tag":"blocked",
-      "protocol":"blackhole",
-      "settings":{}
-    }
-  ],
-  "routing":{
-    "domainStrategy":"IPOnDemand",
-    "rules":[
-      {
-        "type":"field",
-        "ip":[
-          "geoip:private"
-        ],
-        "outboundTag":"direct"
-      }
-    ]
+  "dns": {
+      "servers": [
+          "1.1.1.1"
+      ]
   },
-  "policy":{},
-  "reverse":{},
-  "transport":{}
+  "inbounds": [{
+        "port": 1080,
+        "protocol": "socks",
+        "settings": {
+            "auth": "noauth",
+            "udp": True,
+            "userLevel": 8
+        },
+        "sniffing": {
+            "destOverride": [
+                "http",
+                "tls"
+            ],
+            "enabled": True
+        },
+        "tag": "socks"
+    },
+    {
+        "port": 1081,
+        "protocol": "http",
+        "settings": {
+            "userLevel": 8
+        },
+        "tag": "http"
+    }
+  ],
+  "log": {
+      "loglevel": "warning"
+  },
+  "outbounds": [{
+          "mux": {
+              "enabled": False
+          },
+          "protocol": "",
+          "settings": {},
+          "streamSettings": {},
+          "tag": "proxy"
+      },
+      {
+          "protocol": "freedom",
+          "settings": {},
+          "tag": "direct"
+      },
+      {
+          "protocol": "blackhole",
+          "settings": {
+              "response": {
+                  "type": "http"
+              }
+          },
+          "tag": "block"
+      }
+  ],
+  "policy": {
+      "levels": {
+          "8": {
+              "connIdle": 300,
+              "downlinkOnly": 1,
+              "handshake": 4,
+              "uplinkOnly": 1
+          }
+      },
+      "system": {
+          "statsInboundUplink": True,
+          "statsInboundDownlink": True
+      }
+  },
+  "routing": {
+      "domainStrategy": "IPIfNonMatch",
+      "rules": []
+  },
+  "stats": {}
 }

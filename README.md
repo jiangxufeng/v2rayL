@@ -7,7 +7,7 @@ V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 # v2rayL
 
-![v2rayL](http://cloud.thinker.ink/images/v2rayLlogo.png)
+![v2rayL](http://cloud.thinker.ink/images/857633d396d9f89cc606c0666194f45f.png)
 
 v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 
@@ -19,13 +19,15 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 - 通过`vmess://`、`ss://`分享链接添加配置，通过二维码添加配置
 - 导出配置、生成配置分享链接、生成分享二维码
 - 最小化至托盘、测试延时、右键菜单
+- 检查更新
 - ......
 
+其中vmess支持websocket、mKcp
 目前程序可能存在一些bug但是没有测试出，若在使用过程中发现bug，请在issue中提交，以便改进。
 
 # Usage
 
-## 安装
+## install
 ```
 ① 在release中下载最新版本的install.sh
 ```
@@ -33,7 +35,7 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 ② 运行 ./install.sh
 ```
 
-## 更新
+## update
 ```
 ① 在release中下载最新版本的update.sh
 ```
@@ -41,9 +43,9 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 ② 运行 ./update.sh
 ```
 
-# 首页展示
+# Home page
 
-![首页](http://cloud.thinker.ink/images/0bbd5564f4c123f24089d9134bcd6fe0.png)
+![首页](http://cloud.thinker.ink/images/f366165b6daced76427a6f8a89cc4168.png)
 
 # License
 
