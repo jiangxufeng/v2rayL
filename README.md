@@ -13,49 +13,57 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 
 目前已实现以下功能：
 
+- 全新的UI界面
 - 添加订阅地址，自动解析并展示可连接VPN
 - 设置自动更新订阅、更换地址
 - 支持协议：vmess、shadowsocks
 - 通过`vmess://`、`ss://`分享链接添加配置，通过二维码添加配置
 - 导出配置、生成配置分享链接、生成分享二维码
-- 最小化至托盘、测试延时、右键菜单
-- 检查更新
+- 最小化至托盘、检查更新
 - ......
 
 其中vmess支持websocket、mKcp
 目前程序可能存在一些bug但是没有测试出，若在使用过程中发现bug，请在issue中提交，以便改进。
 
-# Usage
+# 使用
 
-## install
+## 安装
 方法一：
 ```
 bash <(curl -s -L http://cloud.thinker.ink/install.sh)
 ```
+
 方法二：
 ```
 在release中下载最新的install.sh，然后运行 ./install.sh
 ```
 
-## update
+## 更新
 方法一：
 ```
 bash <(curl -s -L http://cloud.thinker.ink/update.sh)
 ```
+
 方法二：
 ```
 在release中下载最新的update.sh，然后运行 ./update.sh
 ```
 
-# pages
+# 展示
 
-- ![首页](http://cloud.thinker.ink/images/690c3ea3c5357273beeef2e6b0c573ee.png)
+![首页](http://cloud.thinker.ink/images/690c3ea3c5357273beeef2e6b0c573ee.png)
 
-- ![setting1](http://cloud.thinker.ink/images/c7c0cafc297d6be5ea6bb7ebcd3a1375.png)
+![setting1](http://cloud.thinker.ink/images/c7c0cafc297d6be5ea6bb7ebcd3a1375.png)
 
-- ![setting2](http://cloud.thinker.ink/images/37239b8753e2344872477c518a9cd4c8.png)
+![setting2](http://cloud.thinker.ink/images/37239b8753e2344872477c518a9cd4c8.png)
 
-# License
+# 感谢
+
+UI界面设计来源：https://www.codercto.com/a/24461.html
+
+配置方面参考: ![v2rayNG](https://github.com/2dust/v2rayNG)
+
+# 协议
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
