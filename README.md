@@ -59,7 +59,7 @@ bash <(curl -s -L http://cloud.thinker.ink/update.sh)
 
 # 感谢
 
-UI界面设计来源：https://www.codercto.com/a/24461.html
+UI界面设计来源：https://zmister.com/archives/477.html
 
 配置方面参考: https://github.com/2dust/v2rayNG
 
