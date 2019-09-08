@@ -12,12 +12,13 @@ class V2rayL(object):
     def __init__(self):
 
         try:
-            with open("/etc/v2rayL/current", "rb") as f:
-                self.current, self.url, self.auto = pickle.load(f)
+            with open("/etc/v2rayL/ncurrent", "rb") as f:
+                self.current, self.url, self.auto, self.check = pickle.load(f)
         except:
             self.current = "未连接至VPN"
             self.url = None
             self.auto = False
+            self.check = False
 
         self.subs = Sub2Conf(subs_url=self.url)
 
@@ -25,19 +26,29 @@ class V2rayL(object):
             try:
                 self.subs.update()
             except:
-                with open("/etc/v2rayL/current", "wb") as jf:
+                with open("/etc/v2rayL/ncurrent", "wb") as jf:
                     pickle.dump((self.current, None, False), jf)
                 raise MyException("更新失败, 已关闭自动更新，请更新订阅地址")
 
+    def auto_check(self, flag):
+        if flag:
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                self.check = True
+                pickle.dump((self.current, self.url, self.auto, self.check), jf)
+        else:
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                self.check = False
+                pickle.dump((self.current, self.url, self.auto, self.check), jf)
+
     def subscribe(self, flag):
         if flag:
-            with open("/etc/v2rayL/current", "wb") as jf:
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 self.auto = True
-                pickle.dump((self.current, self.url, self.auto), jf)
+                pickle.dump((self.current, self.url, self.auto, self.check), jf)
         else:
-            with open("/etc/v2rayL/current", "wb") as jf:
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 self.auto = False
-                pickle.dump((self.current, self.url, self.auto), jf)
+                pickle.dump((self.current, self.url, self.auto, self.check), jf)
 
     def connect(self, region):
         self.subs.setconf(region)
@@ -51,8 +62,8 @@ class V2rayL(object):
             raise MyException("连接失败，请尝试更新订阅后再次连接......")
         else:
             self.current = region
-            with open("/etc/v2rayL/current", "wb") as jf:
-                pickle.dump((self.current, self.url, self.auto), jf)
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump((self.current, self.url, self.auto, self.check), jf)
 
     def disconnect(self):
         try:
@@ -60,8 +71,8 @@ class V2rayL(object):
             if "Active: active" in output:
                 subprocess.call(["sudo systemctl stop v2rayL.service"], shell=True)
                 self.current = "未连接至VPN"
-                with open("/etc/v2rayL/current", "wb") as jf:
-                    pickle.dump((self.current, self.url, self.auto), jf)
+                with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                    pickle.dump((self.current, self.url, self.auto, self.check), jf)
             else:
                 raise MyException("服务未开启，无需断开连接.")
         except Exception as e:
@@ -71,8 +82,8 @@ class V2rayL(object):
         if url:  # 如果存在订阅地址
             self.subs = Sub2Conf(subs_url=url)
             self.subs.update()
-            with open("/etc/v2rayL/current", "wb") as jf:
-                pickle.dump((self.current, url, self.auto), jf)
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump((self.current, url, self.auto, self.check), jf)
 
         else:
             if self.current in self.subs.saved_conf["subs"]:
@@ -81,11 +92,11 @@ class V2rayL(object):
                 except:
                     pass
 
-                with open("/etc/v2rayL/current", "wb") as jf:
+                with open("/etc/v2rayL/ncurrent", "wb") as jf:
                     pickle.dump(("未连接至VPN", None, False), jf)
 
             else:
-                with open("/etc/v2rayL/current", "wb") as jf:
+                with open("/etc/v2rayL/ncurrent", "wb") as jf:
                     pickle.dump((self.current, None, False), jf)
 
             with open("/etc/v2rayL/data", "wb") as f:

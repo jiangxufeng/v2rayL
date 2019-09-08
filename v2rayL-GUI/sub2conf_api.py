@@ -19,7 +19,7 @@ class Sub2Conf(object):
 
         # 解析后配置
         try:
-            with open("/etc/v2rayL/data", "rb") as f:
+            with open("/etc/v2rayL/ndata", "rb") as f:
                 self.saved_conf = pickle.load(f)
         except:
             self.saved_conf = {
@@ -143,7 +143,7 @@ class Sub2Conf(object):
         except:
             raise MyException("配置删除出错，请稍后再试..")
 
-        with open("/etc/v2rayL/data", "wb") as jf:
+        with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
     def update(self):
@@ -174,7 +174,7 @@ class Sub2Conf(object):
 
         self.conf = dict(self.saved_conf['local'], **self.saved_conf['subs'])
 
-        with open("/etc/v2rayL/data", "wb") as jf:
+        with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
     def add_conf_by_uri(self):
@@ -196,7 +196,7 @@ class Sub2Conf(object):
 
         self.conf = dict(self.saved_conf['local'], **self.saved_conf['subs'])
 
-        with open("/etc/v2rayL/data", "wb") as jf:
+        with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
     def conf2b64(self, region):

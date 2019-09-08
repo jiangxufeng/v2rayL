@@ -28,24 +28,32 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 # Usage
 
 ## install
+方法一：
 ```
-① 在release中下载最新版本的install.sh
+bash <(curl -s -L http://cloud.thinker.ink/install.sh)
 ```
+方法二：
 ```
-② 运行 ./install.sh
+在release中下载最新的install.sh，然后运行 ./install.sh
 ```
 
 ## update
+方法一：
 ```
-① 在release中下载最新版本的update.sh
+bash <(curl -s -L http://cloud.thinker.ink/update.sh)
 ```
+方法二：
 ```
-② 运行 ./update.sh
+在release中下载最新的update.sh，然后运行 ./update.sh
 ```
 
-# Home page
+# pages
 
-![首页](http://cloud.thinker.ink/images/f366165b6daced76427a6f8a89cc4168.png)
+- ![首页](http://cloud.thinker.ink/images/690c3ea3c5357273beeef2e6b0c573ee.png)
+
+- ![setting1](http://cloud.thinker.ink/images/c7c0cafc297d6be5ea6bb7ebcd3a1375.png)
+
+- ![setting2](http://cloud.thinker.ink/images/37239b8753e2344872477c518a9cd4c8.png)
 
 # License
 

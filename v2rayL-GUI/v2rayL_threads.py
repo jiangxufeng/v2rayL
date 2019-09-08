@@ -9,15 +9,14 @@ import subprocess
 import requests
 
 
-
 class ConnectThread(QThread):
     """连接线程"""
     sinOut = pyqtSignal(tuple)
 
-    def __init__(self, tv=(None, None), parent=None):
+    def __init__(self, tv=(None, None, None), parent=None):
         super(ConnectThread, self).__init__(parent)
         # 设置工作状态与初始num数值
-        self.tableView, self.v2rayL = tv
+        self.tableView, self.v2rayL, self.row = tv
 
     def __del__(self):
         # 线程状态改变与线程终止
@@ -25,8 +24,8 @@ class ConnectThread(QThread):
 
     def run(self):
         try:
-            row = self.tableView.currentIndex().row()
-            region = self.tableView.model().item(row, 0).text()    
+            # row = self.tableView.currentIndex().row()
+            region = self.tableView.item(self.row, 1).text()
         except AttributeError:
             self.sinOut.emit(("conn", "@@Fail@@", "未选中配置无法连接，请导入配置后再次连接", None))
         else:
@@ -35,7 +34,7 @@ class ConnectThread(QThread):
             except MyException as e:
                 self.sinOut.emit(("conn", "@@Fail@@", e.args[0], None))
             else:
-                self.sinOut.emit(("conn", "@@OK@@", region, row))
+                self.sinOut.emit(("conn", "@@OK@@", region, self.row))
 
 
 class DisConnectThread(QThread):
@@ -127,7 +126,7 @@ class PingThread(QThread):
 
 class CheckUpdateThread(QThread):
     """
-    测试延时线程
+    检查更新线程
     """
     sinOut = pyqtSignal(tuple)
 
