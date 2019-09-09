@@ -35,30 +35,6 @@ from v2rayL_threads import (
 from new_ui import MainUi, SwitchBtn
 
 
-class Ui_Qr_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(218, 218)
-        Dialog.setMinimumSize(QSize(218, 218))
-        Dialog.setMaximumSize(QSize(218, 218))
-        self.gridLayout = QGridLayout(Dialog)
-        self.gridLayout.setObjectName("gridLayout")
-        self.label = QLabel(Dialog)
-        self.label.setEnabled(True)
-        self.label.setMinimumSize(QSize(200, 200))
-        self.label.setMaximumSize(QSize(200, 200))
-        self.label.setText("")
-        self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-
-        self.retranslateUi(Dialog)
-        QMetaObject.connectSlotsByName(Dialog)
-
-    def retranslateUi(self, Dialog):
-        _translate = QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "二维码分享配置"))
-
-
 class SystemTray(object):
     # 程序托盘类
     def __init__(self, w):
@@ -82,6 +58,7 @@ class SystemTray(object):
         if re == QMessageBox.Yes:
             self.tp.setVisible(False)  # 隐藏托盘控件
             qApp.quit()  # 退出程序
+            self.w.v2rayL.disconnect()
 
     def act(self, reason):
         # 主界面显示方法
@@ -109,10 +86,6 @@ class MyMainWindow(MainUi):
         super(MyMainWindow, self).__init__(parent)
         self.init_ui()
 
-        # 二维码分享配置窗口
-        self.qr_ui = QDialog()
-        self.qr_child_ui = Ui_Qr_Dialog()
-        self.qr_child_ui.setupUi(self.qr_ui)
         self.version = "2.0.2"
 
         # 获取api操作
@@ -125,7 +98,7 @@ class MyMainWindow(MainUi):
         self.update_addr_start = UpdateSubsThread()
         self.update_subs_start = UpdateSubsThread()
 
-        #  self.ping_start = PingThread(tv=(self.tableView, self.v2rayL))
+        self.ping_start = PingThread()
         # 检查版本更新线程
         self.check_update_start = CheckUpdateThread(version=self.version)
         # 更新版本线程
@@ -171,8 +144,7 @@ class MyMainWindow(MainUi):
         self.first_ui.pushButton.clicked.connect(self.update_subs)  # 更新订阅
         self.config_setting_ui.pushButton_2.clicked.connect(self.output_conf)  # 导出配置文件
         self.config_setting_ui.pushButton.clicked.connect(self.get_conf_from_qr)  # 通过二维码导入
-        self.first_ui.pushButton_1.clicked.connect(self.output_conf_by_uri)  # 生成分享链接
-        self.first_ui.pushButton_2.clicked.connect(self.output_conf_by_qr)  # 生成分享二维码
+        self.first_ui.pushButton_1.clicked.connect(self.start_ping_th)  # 测试延时
         self.system_setting_ui.checkupdateButton.clicked.connect(self.check_update)  # 检查更新
         self.config_setting_ui.lineEdit.returnPressed.connect(self.change_subs_addr)  # 更新订阅操作
         self.config_setting_ui.pushButton_3.clicked.connect(self.change_subs_addr)  # 更新订阅操作
@@ -181,23 +153,15 @@ class MyMainWindow(MainUi):
         self.disconn_start.sinOut.connect(self.alert)  # 得到断开连接反馈
         self.update_addr_start.sinOut.connect(self.alert)  # 得到反馈
         self.update_subs_start.sinOut.connect(self.alert)   # 得到反馈
-        # self.ping_ui.triggered.connect(self.start_ping_th)  # toolbar绑定ping程序
-        # self.ping_start.sinOut.connect(self.alert)  # 得到反馈
+        self.ping_start.sinOut.connect(self.alert)  # 得到反馈
         self.check_update_start.sinOut.connect(self.alert)
         self.version_update_start.sinOut.connect(self.alert)
 
         # 设置最小化到托盘
         SystemTray(self)
 
-    # def help(self):
-    #     QMessageBox.about(self, "说明",
-    #         self.tr("1. v2rayL当前版本：v2.0.1\n"
-    #                 "2. github地址：https://github.com/jiangxufeng/v2rayL\n"
-    #                 "3. 目前支持协议有：Vmess、shadowsocks\n4. 支持通过分享链接、二维码导入和分享配置\n"
-    #                 "5. 双击选中配置可直接进行连接\n6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
-
     def check_update(self):
-        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在检查版本更新. -t 3"
+        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在检查版本更新."
         subprocess.call([shell], shell=True)
         self.check_update_start.start()
 
@@ -211,12 +175,12 @@ class MyMainWindow(MainUi):
         i = 1
         for k, v in all_conf.items():
             lists.append((i, k, v["add"]+":"+v["port"], v["prot"],
-                          True if k == self.v2rayL.current else False, self.start_conn_th, self.del_conf))
+                          True if k == self.v2rayL.current else False, self.start_conn_th,
+                          self.del_conf, self.show_share_dialog))
             i += 1
         self.first_ui.tableWidget.setRowCount(i-1)
 
         for i in lists:
-         #   print(i)
             self.first_ui.add_item(i)
 
     def change_subs_addr(self):
@@ -233,17 +197,17 @@ class MyMainWindow(MainUi):
                                                                  "是否继续？"),
                                          QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)
             if choice == QMessageBox.Ok:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址...... -t 3"
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
                 subprocess.call([shell], shell=True)
                 self.update_addr_start.start()
             else:
                 self.config_setting_ui.lineEdit.setText(self.v2rayL.url)
         else:
             if url == self.v2rayL.url:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅地址未改变 -t 3"
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅地址未改变"
                 subprocess.call([shell], shell=True)
             else:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址...... -t 3"
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
                 subprocess.call([shell], shell=True)
                 self.update_addr_start.start()
 
@@ -263,24 +227,32 @@ class MyMainWindow(MainUi):
         通过分享链接获取配置
         :return:
         """
-        uri = self.config_setting_ui.lineEdit_2.text()
-        if not uri:
+        uris = self.config_setting_ui.lineEdit_2.text().split(";")
+        if not uris:
             QMessageBox.warning(self, "提示",
                                 self.tr("请输入配置分享路径！"),
                                 QMessageBox.Ok, QMessageBox.Ok)
         else:
-            try:
-                self.v2rayL.addconf(uri)
-            except MyException as e:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("错误： "+e.args[0])
-                subprocess.call([shell], shell=True)
-                self.config_setting_ui.lineEdit_2.setText("")
-            else:
+            uris = [x for x in uris if x]
+            errors = []
+            for i in range(len(uris)):
+                try:
+                    self.v2rayL.addconf(uris[i])
+                except MyException as e:
+                    # shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("错误： "+e.args[0])
+                    # subprocess.call([shell], shell=True)
+                    # self.config_setting_ui.lineEdit_2.setText("")
+                    errors.append(str(i+1))
+                # else:
+            if not errors:
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 添加配置成功"
-                subprocess.call([shell], shell=True)
-                self.v2rayL = V2rayL()
-                self.display_all_conf()
-                self.config_setting_ui.lineEdit_2.setText("")
+            else:
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL " \
+                        "添加配置成功，其中第{}条配置解析错误，无法添加".format("、".join(errors))
+            subprocess.call([shell], shell=True)
+            self.v2rayL = V2rayL()
+            self.display_all_conf()
+            self.config_setting_ui.lineEdit_2.setText("")
 
     def get_conf_from_qr(self):
         """
@@ -378,8 +350,7 @@ class MyMainWindow(MainUi):
                 self.display_all_conf()
 
             elif tp == "ping":
-                self.status = self.status_format.format(self.v2rayL.current, ("开启" if self.v2rayL.auto else "关闭"))+ "\t\t\t\t\t\t所测延时: {}ms".format(ret)
-                self.statusbar.showMessage(self.status)
+                self.first_ui.time.setText(str(ret)+"ms")
 
             elif tp == "ckud":
                 if not row:
@@ -410,14 +381,12 @@ class MyMainWindow(MainUi):
             elif tp == "conn":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                 subprocess.call([shell], shell=True)
-                self.statusbar.showMessage(self.status)
-                self.connect_ui.setEnabled(True)
-                self.disconnect_ui.setDisabled(True)
+                self.display_all_conf()
 
             elif tp == "disconn":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                 subprocess.call([shell], shell=True)
-                self.statusbar.showMessage(self.status)
+                self.display_all_conf()
 
             elif tp == "ckud":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
@@ -469,48 +438,52 @@ class MyMainWindow(MainUi):
 
     def start_ping_th(self):
         """
-        开始ping测延时
+        开始测延时
         :return:
         """
+        self.ping_start.v2rayL = self.v2rayL
         self.ping_start.start()
 
-    def output_conf_by_uri(self):
+    def show_share_dialog(self, region):
+        self.share_child_ui.pushButton.clicked.connect(lambda: self.output_conf_by_qr(region))
+        self.share_child_ui.pushButton_2.clicked.connect(lambda: self.output_conf_by_uri(region))
+        self.share_ui.show()
+
+    def output_conf_by_uri(self, region):
         """
         输出分享链接
         :return:
         """
-        if self.v2rayL.current != "未连接至VPN":
-            ret = self.v2rayL.subs.conf2b64(self.v2rayL.current)
-            QMessageBox.information(self, "分享链接", self.tr(ret))
-        else:
-            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 请连接一个VPN后再选择分享 -t 3"
-            subprocess.call([shell], shell=True)
+        # if self.v2rayL.current != "未连接至VPN":
+        #     ret = self.v2rayL.subs.conf2b64(self.v2rayL.current)
+        #     QMessageBox.information(self, "分享链接", self.tr(ret))
+        # else:
+        #     shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 请连接一个VPN后再选择分享 -t 3"
+        #     subprocess.call([shell], shell=True)
+        ret = self.v2rayL.subs.conf2b64(region)
+        QMessageBox.information(self, "分享链接", self.tr(ret))
 
-    def output_conf_by_qr(self):
+    def output_conf_by_qr(self, region):
         """
         输出分享二维码
         :return:
         """
-        if self.v2rayL.current != "未连接至VPN":
-            ret = self.v2rayL.subs.conf2b64(self.v2rayL.current)
-            # 生成二维码
-            url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
-            try:
-                req = requests.get(url)
-                if req.status_code == 200:
-                    qr = QPixmap()
-                    qr.loadFromData(req.content)
-                    self.qr_child_ui.label.setPixmap(qr)
-                    self.qr_child_ui.label.setScaledContents(True)
-                    self.qr_ui.show()
-                else:
-                    shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
-                    subprocess.call([shell], shell=True)
-            except:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
+        ret = self.v2rayL.subs.conf2b64(region)
+        # 生成二维码
+        url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
+        try:
+            req = requests.get(url)
+            if req.status_code == 200:
+                qr = QPixmap()
+                qr.loadFromData(req.content)
+                self.qr_child_ui.label.setPixmap(qr)
+                self.qr_child_ui.label.setScaledContents(True)
+                self.qr_ui.show()
+            else:
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
                 subprocess.call([shell], shell=True)
-        else:
-            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 请连接一个VPN后再选择分享"
+        except:
+            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
             subprocess.call([shell], shell=True)
 
 

@@ -5,6 +5,7 @@
 import subprocess
 import pickle
 import re
+import requests
 from sub2conf_api import Sub2Conf, MyException
 
 
@@ -109,11 +110,14 @@ class V2rayL(object):
     def delconf(self, region):
         self.subs.delconf(region)
 
-    def ping(self, addr):
+    def ping(self):
         try:
-            p = subprocess.getoutput(["ping -c 1 "+addr])
-            res = re.search("time=(.*?)ms", p)
-            return res.group(1)
+            proxy = {
+                "http": "127.0.0.1:1081",
+                "https": "127.0.0.1:1081"
+            }
+            req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
+            return req.elapsed.total_seconds()*1000
         except:
             raise MyException("测试超时")
 

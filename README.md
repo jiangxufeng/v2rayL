@@ -19,7 +19,7 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
 - 支持协议：vmess、shadowsocks
 - 通过`vmess://`、`ss://`分享链接添加配置，通过二维码添加配置
 - 导出配置、生成配置分享链接、生成分享二维码
-- 最小化至托盘、检查更新
+- 最小化至托盘、测试延时、检查更新
 - ......
 
 其中vmess支持websocket、mKcp

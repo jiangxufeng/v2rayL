@@ -103,9 +103,9 @@ class PingThread(QThread):
     """
     sinOut = pyqtSignal(tuple)
 
-    def __init__(self, tv=(None, None), parent=None):
+    def __init__(self, v2ray=None, parent=None):
         super(PingThread, self).__init__(parent)
-        self.tableView, self.v2rayL = tv
+        self.v2rayL = v2ray
 
     def __del__(self):
         # 线程状态改变与线程终止
@@ -113,15 +113,15 @@ class PingThread(QThread):
 
     def run(self):
         try:
-            row = self.tableView.currentIndex().row()
-            addr = self.tableView.model().item(row, 1).text()
-            ret = self.v2rayL.ping(addr)
+            # # row = self.tableView.currentIndex().row()
+            # addr = self.tableView.model().item(self.row, 1).text()
+            ret = self.v2rayL.ping()
         except MyException as e:
             self.sinOut.emit(("ping", "@@Fail@@", e.args[0], None))
         except AttributeError:
             self.sinOut.emit(("ping", "@@Fail@@", "请选择需要测试的配置.", None))
         else:
-            self.sinOut.emit(("ping", "@@OK@@", ret.strip(), None))
+            self.sinOut.emit(("ping", "@@OK@@", int(ret), None))
 
 
 class CheckUpdateThread(QThread):

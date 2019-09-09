@@ -6,6 +6,7 @@ import base64
 import json
 import pickle
 import requests
+import urllib.parse as parse
 from config import conf_template as conf
 
 
@@ -40,16 +41,16 @@ class Sub2Conf(object):
 
     def b642conf(self, prot, tp, b64str):
         if prot == "vmess":
-            ret = eval(base64.b64decode(b64str).decode())
+            ret = eval(parse.unquote(base64.b64decode(b64str).decode()))
             region = ret['ps']
 
         elif prot == "shadowsocks":
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
-                tmp = base64.b64decode(cf[0]).decode()
+                tmp = parse.unquote(base64.b64decode(cf[0]).decode())
             else:
-                tmp = base64.b64decode(cf[0]).decode() + "@" + cf[1]
+                tmp = parse.unquote(base64.b64decode(cf[0]).decode()) + "@" + cf[1]
             ret = {
                 "method": tmp.split(":")[0],
                 "port": tmp.split(":")[2],
@@ -208,6 +209,7 @@ class Sub2Conf(object):
         if prot == "vmess":
             return prot+"://"+base64.b64encode(str(tmp).encode()).decode()
         else:
+            prot = "ss"
             return prot+"://"+base64.b64encode("{}:{}@{}:{}".format(tmp["method"],
                                                                        tmp["password"], tmp["add"],
                                                                        tmp["port"]).encode()).decode()+"#"+region

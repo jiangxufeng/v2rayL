@@ -234,10 +234,6 @@ class MainUi(QMainWindow):
         self.right_bar_layout.addWidget(self.v2rayL_icon, 0, 0, 1, 4, Qt.AlignRight)
         self.right_bar_layout.addWidget(self.v2rayL_label, 0, 4, 1, 5, Qt.AlignLeft)
 
-        # self.right_one_widget = QWidget()
-        # self.right_one_layout = QGridLayout()
-        # self.right_one_widget.setLayout(self.right_one_layout)
-
         self.right_up_layout.addWidget(self.right_bar_widget, 0, 0, 1, 9)
         # self.right_layout.addWidget(self.right_one_widget, 1, 0, 8, 9)
 
@@ -308,26 +304,36 @@ class MainUi(QMainWindow):
         self.system_setting_widget = QWidget()
         self.help_widget = QWidget()
         self.first_widget = QWidget()
-        # self.settings1_layout = QGridLayout()
-        # self.settings1_widget.setLayout(self.settings1_layout)
-        #
-        # self.label_peizhi = QLabel("配置")
+
+        # 配置页面
         self.config_setting_ui = Ui_Setting1_Form()
         self.config_setting_ui.setupUi(self.config_setting_widget)
         self.right_down_layout.addWidget(self.config_setting_widget)
 
-
+        # 系统设置页面
         self.system_setting_ui = Ui_SystemSettings()
         self.system_setting_ui.setupUi(self.system_setting_widget)
         self.right_down_layout.addWidget(self.system_setting_widget)
 
+        # 版本说明页面
         self.help_ui = Ui_HelpUi()
         self.help_ui.setupUi(self.help_widget)
         self.right_down_layout.addWidget(self.help_widget)
 
+        # 主页连接页面
         self.first_ui = Ui_FirstPage()
         self.first_ui.setupUi(self.first_widget)
         self.right_down_layout.addWidget(self.first_widget)
+
+        # 分享配置窗口
+        self.share_ui = QDialog()
+        self.share_child_ui = Ui_Share_Dialog()
+        self.share_child_ui.setupUi(self.share_ui)
+
+        # 二维码分享配置窗口
+        self.qr_ui = QDialog()
+        self.qr_child_ui = Ui_Qr_Dialog()
+        self.qr_child_ui.setupUi(self.qr_ui)
 
         self.current_page = self.first_widget
         self.config_setting_widget.hide()
@@ -429,7 +435,7 @@ class Ui_Setting1_Form(object):
                                         "background-color:transparent;")
         self.lineEdit_2.setText("")
         self.lineEdit_2.setObjectName("lineEdit_2")
-        self.lineEdit_2.setPlaceholderText("以vmess://或ss://开头，回车确认")
+        self.lineEdit_2.setPlaceholderText("以vmess://或ss://开头，以英文;分隔多条，回车确认")
         self.label_5 = QLabel(Form)
         self.label_5.setGeometry(QRect(570, 90, 131, 21))
         self.label_5.setStyleSheet("font: 13pt \"Purisa\";")
@@ -586,6 +592,7 @@ class Ui_SystemSettings(object):
         self.label_9.setText(_translate("SystemSettings", "1081"))
         self.label_10.setText(_translate("SystemSettings", "1080"))
 
+
 class Ui_HelpUi(object):
     def setupUi(self, HelpUi):
         HelpUi.setObjectName("HelpUi")
@@ -637,42 +644,40 @@ class Ui_FirstPage(object):
         self.tableWidget = QTableWidget(Form)
         self.tableWidget.setGeometry(QRect(0, 60, 770, 320))
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(6)
+        self.tableWidget.setColumnCount(7)
         # self.tableWidget.setRowCount(12)
         self.label = QLabel(Form)
-        self.label.setGeometry(QRect(150, 30, 41, 21))
+        self.label.setGeometry(QRect(130, 30, 41, 21))
         self.label.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
         self.label.setObjectName("label")
         self.label_2 = QLabel(Form)
-        self.label_2.setGeometry(QRect(340, 30, 41, 21))
+        self.label_2.setGeometry(QRect(335, 30, 41, 21))
         self.label_2.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
         self.label_2.setObjectName("label_2")
         self.label_3 = QLabel(Form)
-        self.label_3.setGeometry(QRect(500, 30, 41, 21))
+        self.label_3.setGeometry(QRect(490, 30, 41, 21))
         self.label_3.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
         self.label_3.setObjectName("label_3")
         self.label_4 = QLabel(Form)
-        self.label_4.setGeometry(QRect(25, 30, 41, 21))
+        self.label_4.setGeometry(QRect(15, 30, 41, 21))
         self.label_4.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
         self.label_4.setObjectName("label_4")
         self.pushButton = QPushButton(Form)
-        self.pushButton.setGeometry(QRect(150, 400, 111, 31))
+        self.pushButton.setGeometry(QRect(200, 400, 111, 31))
         self.pushButton.setStyleSheet(
             "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
             "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
         self.pushButton_1 = QPushButton(Form)
-        self.pushButton_1.setGeometry(QRect(310, 400, 111, 31))
+        self.pushButton_1.setGeometry(QRect(360, 400, 130, 31))
         self.pushButton_1.setStyleSheet(
             "#pushButton_1{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
             "#pushButton_1:hover{ background: #5599FF;}")
         self.pushButton_1.setObjectName("pushButton_1")
-        self.pushButton_2 = QPushButton(Form)
-        self.pushButton_2.setGeometry(QRect(470, 400, 111, 31))
-        self.pushButton_2.setStyleSheet(
-            "#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
-            "#pushButton_2:hover{ background: #5599FF;}")
-        self.pushButton_2.setObjectName("pushButton_2")
+        self.time = QLabel(Form)
+        self.time.setGeometry(QRect(510, 400, 100, 31))
+        self.time.setStyleSheet('font: 75 11pt "宋体";font-weight:bold;')
+        self.time.setObjectName("time")
 
         self.tableWidget.setShowGrid(False)
         self.tableWidget.setFrameShape(QFrame.NoFrame)
@@ -685,8 +690,9 @@ class Ui_FirstPage(object):
         self.tableWidget.setColumnWidth(1, 200)
         self.tableWidget.setColumnWidth(2, 200)
         self.tableWidget.setColumnWidth(3, 100)
-        self.tableWidget.setColumnWidth(4, 100)
-        self.tableWidget.setColumnWidth(5, 100)
+        self.tableWidget.setColumnWidth(4, 80)
+        self.tableWidget.setColumnWidth(5, 50)
+        self.tableWidget.setColumnWidth(6, 50)
         self.tableWidget.verticalHeader().setDefaultSectionSize(40)
         self.tableWidget.setStyleSheet('''
             #tableWidget{
@@ -707,24 +713,12 @@ class Ui_FirstPage(object):
 
     def add_item(self, args):
         item = QTableWidgetItem(str(args[0]))
-        # font = QFont()
-        # font.setPointSize(16)
-        # item.setFont(font)
         self.tableWidget.setItem(args[0]-1, 0, item)
         item = QTableWidgetItem(args[1])
-        # font = QFont()
-        # font.setPointSize(16)
-        # item.setFont(font)
         self.tableWidget.setItem(args[0]-1, 1, item)
         item = QTableWidgetItem(args[2])
-        # font = QFont()
-        # font.setPointSize(16)
-        # item.setFont(font)
         self.tableWidget.setItem(args[0]-1, 2, item)
         item = QTableWidgetItem(args[3])
-        # font = QFont()
-        # font.setPointSize(16)
-        # item.setFont(font)
         self.tableWidget.setItem(args[0]-1, 3, item)
         label_1 = QLabel()
         if args[4]:
@@ -734,7 +728,7 @@ class Ui_FirstPage(object):
         switchBtn.setGeometry(20, 5, 60, 30)
         switchBtn.checkedChanged.connect(lambda: args[5](args[0]-1, not switchBtn.checked))
         self.tableWidget.setCellWidget(args[0]-1, 4, label_1)
-        button1 = QPushButton("删除配置")
+        button1 = QPushButton("删除")
         button1.setObjectName("delbt")
         button1.setStyleSheet('''
             #delbt{border-width: 0px; 
@@ -750,6 +744,22 @@ class Ui_FirstPage(object):
         ''')
         button1.clicked.connect(lambda: args[6](args[0]-1))
         self.tableWidget.setCellWidget(args[0]-1, 5, button1)
+        button2 = QPushButton("分享")
+        button2.setObjectName("delbt")
+        button2.setStyleSheet('''
+            #delbt{border-width: 0px; 
+            border-radius: 15px; 
+            background: #1E90FF; 
+            outline: none; 
+            font-family: Microsoft YaHei; 
+            color: white; 
+            font-size: 13px; 
+            margin:5px;
+            }
+            #delbt:hover{ background: #5599FF;}
+        ''')
+        button2.clicked.connect(lambda: args[7](args[1]))
+        self.tableWidget.setCellWidget(args[0]-1, 6, button2)
 
 
 
@@ -761,8 +771,61 @@ class Ui_FirstPage(object):
         self.label_3.setText(_translate("Form", "协议"))
         self.label_4.setText(_translate("Form", "序号"))
         self.pushButton.setText(_translate("Form", "更新订阅"))
-        self.pushButton_1.setText(_translate("Form", "生成分享URI"))
-        self.pushButton_2.setText(_translate("Form", "生成分享qrcode"))
+        self.pushButton_1.setText(_translate("Form", "测试当前延时"))
+
+
+class Ui_Share_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(226, 171)
+        self.label = QLabel(Dialog)
+        self.label.setGeometry(QRect(20, 20, 191, 17))
+        self.label.setStyleSheet("font: 75 13pt \"新宋体\";")
+        self.label.setObjectName("label")
+        self.pushButton = QPushButton(Dialog)
+        self.pushButton.setGeometry(QRect(40, 60, 141, 31))
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        "#pushButton:hover{ background: #5599FF;}")
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton_2 = QPushButton(Dialog)
+        self.pushButton_2.setGeometry(QRect(40, 110, 141, 31))
+        self.pushButton_2.setStyleSheet("#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        "#pushButton_2:hover{ background: #5599FF;}")
+        self.pushButton_2.setObjectName("pushButton_2")
+
+        self.retranslateUi(Dialog)
+        QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "配置分享"))
+        self.label.setText(_translate("Dialog", "请选择以下一种方式分享"))
+        self.pushButton.setText(_translate("Dialog", "二维码分享"))
+        self.pushButton_2.setText(_translate("Dialog", "链接分享"))
+
+
+class Ui_Qr_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(218, 218)
+        Dialog.setMinimumSize(QSize(218, 218))
+        Dialog.setMaximumSize(QSize(218, 218))
+        self.gridLayout = QGridLayout(Dialog)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QLabel(Dialog)
+        self.label.setEnabled(True)
+        self.label.setMinimumSize(QSize(200, 200))
+        self.label.setMaximumSize(QSize(200, 200))
+        self.label.setText("")
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+
+        self.retranslateUi(Dialog)
+        QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "二维码分享配置"))
 
 def main():
     app = QApplication(sys.argv)
