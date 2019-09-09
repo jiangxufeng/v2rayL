@@ -86,7 +86,7 @@ class MyMainWindow(MainUi):
         super(MyMainWindow, self).__init__(parent)
         self.init_ui()
 
-        self.version = "2.0.2"
+        self.version = "2.0.3"
 
         # 获取api操作
         self.v2rayL = V2rayL()
