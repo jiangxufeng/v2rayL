@@ -174,7 +174,7 @@ class MyMainWindow(MainUi):
         lists = []
         i = 1
         for k, v in all_conf.items():
-            lists.append((i, k, v["add"]+":"+v["port"], v["prot"],
+            lists.append((i, k, str(v["add"])+":"+str(v["port"]), v["prot"],
                           True if k == self.v2rayL.current else False, self.start_conn_th,
                           self.del_conf, self.show_share_dialog))
             i += 1
