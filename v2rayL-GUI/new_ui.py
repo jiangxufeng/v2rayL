@@ -585,7 +585,7 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.0.2"))
+        self.version_label.setText(_translate("SystemSettings", "v2.0.3"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
         self.label_7.setText(_translate("SystemSettings", "程序启动时自动进行检查更新"))
         self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10000"))
