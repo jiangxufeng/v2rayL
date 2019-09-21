@@ -3,7 +3,6 @@
 # Date: 2019-08-13
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
 from sub2conf_api import MyException
 import subprocess
 import requests
@@ -121,7 +120,7 @@ class PingThread(QThread):
         except AttributeError:
             self.sinOut.emit(("ping", "@@Fail@@", "请选择需要测试的配置.", None))
         else:
-            self.sinOut.emit(("ping", "@@OK@@", int(ret), None))
+            self.sinOut.emit(("ping", "@@OK@@", ret, None))
 
 
 class CheckUpdateThread(QThread):
@@ -141,7 +140,7 @@ class CheckUpdateThread(QThread):
     def run(self):
         update_url = "https://api.github.com/repos/jiangxufeng/v2rayL/releases/latest"
         try:
-            req = requests.get(update_url)
+            req = requests.get(update_url, timeout=10)
             if req.status_code != 200:
                 self.sinOut.emit(("ckud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
             else:
@@ -150,8 +149,8 @@ class CheckUpdateThread(QThread):
                     self.sinOut.emit(("ckud", "@@OK@@", "当前版本已是最新版本.", None))
                 else:
                     self.sinOut.emit(("ckud", "@@OK@@", "正在后台进行更新..", req))
-        except Exception as e:
-            self.sinOut.emit(("ckud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试."+e.args[0], None))
+        except:
+            self.sinOut.emit(("ckud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
 
 
 class VersionUpdateThread(QThread):
@@ -182,6 +181,6 @@ class VersionUpdateThread(QThread):
 
                 self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
 
-        except Exception as e:
-            self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试."+e.args[0], None))
+        except Exception:
+            self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
 

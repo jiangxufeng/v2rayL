@@ -585,7 +585,7 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.0.3"))
+        self.version_label.setText(_translate("SystemSettings", "v2.0.4"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
         self.label_7.setText(_translate("SystemSettings", "程序启动时自动进行检查更新"))
         self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10000"))
@@ -617,7 +617,7 @@ class Ui_HelpUi(object):
         "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
-        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.0.2</span></p>\n"
+        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.0.4</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">说明</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p></body></html>"))
@@ -625,7 +625,8 @@ class Ui_HelpUi(object):
         "2. github地址：https://github.com/jiangxufeng/v2rayL\n"
         "3. 目前支持协议有：Vmess、shadowsocks\n"
         "4. 支持通过分享链接、二维码导入和分享配置\n"
-        "5. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
+        "5. 开发环境为Ubuntu18.04+Python3.6，其他linux系统可能不兼容\n"
+        "6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
 
 
 class CenterDelegate(QItemDelegate):
@@ -675,7 +676,7 @@ class Ui_FirstPage(object):
             "#pushButton_1:hover{ background: #5599FF;}")
         self.pushButton_1.setObjectName("pushButton_1")
         self.time = QLabel(Form)
-        self.time.setGeometry(QRect(510, 400, 100, 31))
+        self.time.setGeometry(QRect(510, 400, 160, 31))
         self.time.setStyleSheet('font: 75 11pt "宋体";font-weight:bold;')
         self.time.setObjectName("time")
 

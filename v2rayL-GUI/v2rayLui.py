@@ -6,12 +6,9 @@ import requests
 import subprocess
 import pickle
 from PyQt5.QtWidgets import (
-    QLabel,
-    QGridLayout,
     QMenu,
     QAction,
     QApplication,
-    QDialog,
     QMessageBox,
     QFileDialog,
     QSystemTrayIcon,
@@ -19,9 +16,7 @@ from PyQt5.QtWidgets import (
 )
 
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QSize, QCoreApplication, QMetaObject
 from v2rayL_api import V2rayL, MyException
-from datetime import datetime
 import pyzbar.pyzbar as pyzbar
 from PIL import Image
 from v2rayL_threads import (
@@ -86,7 +81,7 @@ class MyMainWindow(MainUi):
         super(MyMainWindow, self).__init__(parent)
         self.init_ui()
 
-        self.version = "2.0.3"
+        self.version = "2.0.4"
 
         # 获取api操作
         self.v2rayL = V2rayL()
@@ -238,7 +233,7 @@ class MyMainWindow(MainUi):
             for i in range(len(uris)):
                 try:
                     self.v2rayL.addconf(uris[i])
-                except MyException as e:
+                except MyException:
                     # shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("错误： "+e.args[0])
                     # subprocess.call([shell], shell=True)
                     # self.config_setting_ui.lineEdit_2.setText("")
@@ -376,7 +371,6 @@ class MyMainWindow(MainUi):
             if tp == "addr":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 地址设置错误"
                 subprocess.call([shell], shell=True)
-                self.subs_child_ui.lineEdit.setText(self.v2rayL.url)
 
             elif tp == "conn":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
@@ -410,7 +404,6 @@ class MyMainWindow(MainUi):
             with open(fileName, "w") as wf:
                 wf.write(tmp)
             shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("保存为： "+fileName)
-            print(shell)
             subprocess.call([shell], shell=True)
 
     def change_auto_update(self):

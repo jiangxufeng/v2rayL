@@ -9,7 +9,9 @@ V2Ray 项目地址：https://github.com/v2ray/v2ray-core
 
 ![v2rayL](http://cloud.thinker.ink/images/857633d396d9f89cc606c0666194f45f.png)
 
-v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core
+v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ray-linux-64)
+
+开发环境：`ubuntu18.04+Python3.6`
 
 目前已实现以下功能：
 
@@ -40,22 +42,27 @@ bash <(curl -s -L http://cloud.thinker.ink/install.sh)
 
 ## 更新
 方法一：
-```
+``` bash
 bash <(curl -s -L http://cloud.thinker.ink/update.sh)
 ```
 
 方法二：
-```
+``` bash
 在release中下载最新的update.sh，然后运行 ./update.sh
+```
+
+## 卸载
+``` bash
+bash <(curl -s -L http://cloud.thinker.ink/uninstall.sh)
 ```
 
 # 展示
 
-![首页](http://cloud.thinker.ink/images/690c3ea3c5357273beeef2e6b0c573ee.png)
+![首页](http://cloud.thinker.ink/download/a043a08860f239f8d0cbeb2dc2a5b6d5.png)
 
-![setting1](http://cloud.thinker.ink/images/c7c0cafc297d6be5ea6bb7ebcd3a1375.png)
+![setting1](http://cloud.thinker.ink/download/c32e16f3b205b25c615b86a7beb8eb8d.png)
 
-![setting2](http://cloud.thinker.ink/images/37239b8753e2344872477c518a9cd4c8.png)
+![setting2](http://cloud.thinker.ink/images/cc18605727deaf878cb0a2fa07ec230f.png)
 
 # 感谢
 

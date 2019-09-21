@@ -4,7 +4,6 @@
 
 import subprocess
 import pickle
-import re
 import requests
 from sub2conf_api import Sub2Conf, MyException
 
@@ -59,8 +58,11 @@ class V2rayL(object):
                 subprocess.call(["sudo systemctl restart v2rayL.service"], shell=True)
             else:
                 subprocess.call(["sudo systemctl start v2rayL.service"], shell=True)
+                output = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
+                if "Active: active" not in output:
+                    raise MyException("v2rayL.service 启动失败")
         except:
-            raise MyException("连接失败，请尝试更新订阅后再次连接......")
+            raise MyException("连接失败，请尝试更新订阅后再次连接或检查v2rayL.service是否正常运行")
         else:
             self.current = region
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
@@ -75,7 +77,12 @@ class V2rayL(object):
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
                     pickle.dump((self.current, self.url, self.auto, self.check), jf)
             else:
-                raise MyException("服务未开启，无需断开连接.")
+                if self.current != "未连接至VPN":
+                    self.current = "未连接至VPN"
+                    with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                        pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                else:
+                    raise MyException("服务未开启，无需断开连接.")
         except Exception as e:
             raise MyException(e.args[0])
 
@@ -117,15 +124,22 @@ class V2rayL(object):
                 "https": "127.0.0.1:1081"
             }
             req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
-            return req.elapsed.total_seconds()*1000
+            if req.status_code == 200:
+                return int(req.elapsed.total_seconds()*1000)
+            return req.reason
         except:
             raise MyException("测试超时")
 
 
 if __name__ == '__main__':
-    v = V2rayL()
-    # t = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
-    # print("===================")
-    # print(t)
-    # print("=====================")
-    # print("Active: active" in t)
+    def ping():
+        try:
+            proxy = {
+                "http": "127.0.0.1:1081",
+                "https": "127.0.0.1:1081"
+            }
+            req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
+            if req.status_code == 200:
+                return req.elapsed.total_seconds()*1000
+        except:
+            print(11)
