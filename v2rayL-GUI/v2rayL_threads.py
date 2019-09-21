@@ -173,7 +173,6 @@ class VersionUpdateThread(QThread):
             if req.status_code != 200:
                 self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
             else:
-                print(1)
                 with open("/etc/v2rayL/update.sh", 'w') as f:
                     f.write(req.text)
 

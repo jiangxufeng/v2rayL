@@ -360,7 +360,7 @@ class MyMainWindow(MainUi):
                     if choice == QMessageBox.Yes:
                         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                         subprocess.call([shell], shell=True)
-                        self.version_update_start.url = row.json()["assets"][1]['browser_download_url']
+                        self.version_update_start.url = "http://cloud.thinker.ink/update.sh"
                         self.version_update_start.start()
 
             elif tp == "vrud":
