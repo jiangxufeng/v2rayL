@@ -32,7 +32,7 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ra
 ## 安装
 方法一：
 ```
-bash <(curl -s -L http://cloud.thinker.ink/install.sh)
+bash <(curl -s -L http://dl.thinker.ink/install.sh)
 ```
 
 方法二：
@@ -43,7 +43,7 @@ bash <(curl -s -L http://cloud.thinker.ink/install.sh)
 ## 更新
 方法一：
 ``` bash
-bash <(curl -s -L http://cloud.thinker.ink/update.sh)
+bash <(curl -s -L http://dl.thinker.ink/update.sh)
 ```
 
 方法二：
@@ -53,7 +53,7 @@ bash <(curl -s -L http://cloud.thinker.ink/update.sh)
 
 ## 卸载
 ``` bash
-bash <(curl -s -L http://cloud.thinker.ink/uninstall.sh)
+bash <(curl -s -L http://dl.thinker.ink/uninstall.sh)
 ```
 
 # 展示
