@@ -7,7 +7,7 @@ import json
 import pickle
 import requests
 import urllib.parse as parse
-from config import conf_template as conf
+from config import conf_template as confclient
 
 
 class Sub2Conf(object):
@@ -41,7 +41,7 @@ class Sub2Conf(object):
 
     def b642conf(self, prot, tp, b64str):
         if prot == "vmess":
-            ret = eval(parse.unquote(base64.b64decode(b64str).decode()))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()))
             region = ret['ps']
 
         elif prot == "shadowsocks":
