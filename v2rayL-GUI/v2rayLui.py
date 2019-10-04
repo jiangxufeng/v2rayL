@@ -12,9 +12,10 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QFileDialog,
     QSystemTrayIcon,
-    qApp
+    qApp,
+    QMainWindow
 )
-
++from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from v2rayL_api import V2rayL, MyException
 import pyzbar.pyzbar as pyzbar
@@ -482,6 +483,7 @@ class MyMainWindow(MainUi):
 
 if __name__ == "__main__":
     import sys
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     myWin = MyMainWindow()
     # 显示在屏幕上
