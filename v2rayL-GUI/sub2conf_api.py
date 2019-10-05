@@ -7,7 +7,7 @@ import json
 import pickle
 import requests
 import urllib.parse as parse
-from config import conf_template as confclient
+from config import conf_template as conf
 
 
 class Sub2Conf(object):
