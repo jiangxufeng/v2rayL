@@ -330,10 +330,20 @@ class MainUi(QMainWindow):
         self.share_child_ui = Ui_Share_Dialog()
         self.share_child_ui.setupUi(self.share_ui)
 
-        # 二维码分享配置窗口
-        self.qr_ui = QDialog()
-        self.qr_child_ui = Ui_Qr_Dialog()
-        self.qr_child_ui.setupUi(self.qr_ui)
+        # # 二维码分享配置窗口
+        # self.qr_ui = QDialog()
+        # self.qr_child_ui = Ui_Qr_Dialog()
+        # self.qr_child_ui.setupUi(self.qr_ui)
+
+        # 添加ss窗口
+        self.ss_add_ui = QDialog()
+        self.ss_add_child_ui = Ui_Add_Ss_Dialog()
+        self.ss_add_child_ui.setupUi(self.ss_add_ui)
+
+        # 添加vmess窗口
+        self.vmess_add_ui = QDialog()
+        self.vmess_add_child_ui = Ui_Add_Vmess_Dialog()
+        self.vmess_add_child_ui.setupUi(self.vmess_add_ui)
 
         self.current_page = self.first_widget
         self.config_setting_widget.hide()
@@ -445,12 +455,9 @@ class Ui_Setting1_Form(object):
         self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
                                       "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
-        self.label_6 = QLabel(Form)
-        self.label_6.setGeometry(QRect(40, 190, 141, 21))
-        self.label_6.setStyleSheet("font: 13pt \"Purisa\";\n")
-        self.label_6.setObjectName("label_6")
+
         self.pushButton_2 = QPushButton(Form)
-        self.pushButton_2.setGeometry(QRect(210, 184, 171, 31))
+        self.pushButton_2.setGeometry(QRect(570, 184, 171, 31))
         self.pushButton_2.setStyleSheet("#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
                                         "#pushButton_2:hover{ background: #5599FF;}")
         self.pushButton_2.setObjectName("pushButton_2")
@@ -482,6 +489,19 @@ class Ui_Setting1_Form(object):
         self.switchBtn = SwitchBtn(self.label_9)
         self.switchBtn.setGeometry(0, 0, 60, 30)
 
+        self.pushButton_vmess = QPushButton(Form)
+        self.pushButton_vmess.setGeometry(QRect(40, 184, 171, 31))
+        self.pushButton_vmess.setStyleSheet(
+            "#pushButton_vmess{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton_vmess:hover{ background: #5599FF;}")
+        self.pushButton_vmess.setObjectName("pushButton_vmess")
+
+        self.pushButton_ss = QPushButton(Form)
+        self.pushButton_ss.setGeometry(QRect(250, 184, 171, 31))
+        self.pushButton_ss.setStyleSheet(
+            "#pushButton_ss{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton_ss:hover{ background: #5599FF;}")
+        self.pushButton_ss.setObjectName("pushButton_ss")
 
         self.retranslateUi(Form)
         QMetaObject.connectSlotsByName(Form)
@@ -496,10 +516,11 @@ class Ui_Setting1_Form(object):
         self.label_4.setText(_translate("Form", "通过URI添加"))
         self.label_5.setText(_translate("Form", "通过二维码添加"))
         self.pushButton.setText(_translate("Form", "点击选择二维码"))
-        self.label_6.setText(_translate("Form", "导出当前完整配置"))
-        self.pushButton_2.setText(_translate("Form", "选择保存地址"))
+        self.pushButton_2.setText(_translate("Form", "导出当前完整配置"))
         self.label_7.setText(_translate("Form", "订阅"))
         self.label_8.setText(_translate("Form", "程序启动时自动更新订阅"))
+        self.pushButton_vmess.setText(_translate("Form", "手动配置Vmess"))
+        self.pushButton_ss.setText(_translate("Form", "手动配置shadowsocks"))
 
 
 class Ui_SystemSettings(object):
@@ -519,16 +540,6 @@ class Ui_SystemSettings(object):
         self.label_3.setGeometry(QRect(450, 130, 67, 17))
         self.label_3.setStyleSheet("font: 14pt \"Purisa\";")
         self.label_3.setObjectName("label_3")
-        # self.socks_spinBox = QSpinBox(SystemSettings)
-        # self.socks_spinBox.setGeometry(QRect(530, 120, 131, 31))
-        # self.socks_spinBox.setMinimum(1080)
-        # self.socks_spinBox.setMaximum(10000)
-        # self.socks_spinBox.setObjectName("socks_spinBox")
-        # self.socks_spinBox_2 = QSpinBox(SystemSettings)
-        # self.socks_spinBox_2.setGeometry(QRect(150, 120, 131, 31))
-        # self.socks_spinBox_2.setMinimum(1080)
-        # self.socks_spinBox_2.setMaximum(10000)
-        # self.socks_spinBox_2.setObjectName("socks_spinBox_2")
         self.label_4 = QLabel(SystemSettings)
         self.label_4.setGeometry(QRect(310, 230, 101, 31))
         self.label_4.setStyleSheet("font-size: 24px;\n"
@@ -560,15 +571,17 @@ class Ui_SystemSettings(object):
         self.label_8.setGeometry(QRect(320, 375, 201, 71))
         self.label_8.setObjectName("label_8")
 
-        self.label_9 = QLabel(SystemSettings)
-        self.label_9.setGeometry(QRect(130, 130, 67, 17))
-        self.label_9.setStyleSheet("font: 14pt \"Purisa\";")
-        self.label_9.setObjectName("label_9")
+        self.http_sp = QSpinBox(SystemSettings)
+        self.http_sp.setGeometry(QRect(130, 124, 80, 30))
+        self.http_sp.setMinimum(1080)
+        self.http_sp.setMaximum(10080)
+        self.http_sp.setValue(1081)
 
-        self.label_10 = QLabel(SystemSettings)
-        self.label_10.setGeometry(QRect(525, 130, 67, 17))
-        self.label_10.setStyleSheet("font: 14pt \"Purisa\";")
-        self.label_10.setObjectName("label_10")
+        self.socks_sp = QSpinBox(SystemSettings)
+        self.socks_sp.setGeometry(QRect(525, 124, 80, 30))
+        self.socks_sp.setMinimum(1080)
+        self.socks_sp.setMaximum(10080)
+        self.socks_sp.setValue(1080)
 
         self.switchBtn = SwitchBtn(self.label_8, True)
         self.switchBtn.setGeometry(0, 0, 60, 30)
@@ -585,12 +598,12 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.0.4"))
+        self.version_label.setText(_translate("SystemSettings", "v2.1.0"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
         self.label_7.setText(_translate("SystemSettings", "程序启动时自动进行检查更新"))
-        self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10000"))
-        self.label_9.setText(_translate("SystemSettings", "1081"))
-        self.label_10.setText(_translate("SystemSettings", "1080"))
+        self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10080，每次修改都将更新**"))
+        # self.label_9.setText(_translate("SystemSettings", "1081"))
+        # self.label_10.setText(_translate("SystemSettings", "1080"))
 
 
 class Ui_HelpUi(object):
@@ -617,14 +630,15 @@ class Ui_HelpUi(object):
         "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
-        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.0.4</span></p>\n"
+        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.0</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">说明</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p></body></html>"))
-        self.label.setText(_translate("HelpUi", "1. 具有全新的V2rayL UI\n"
-        "2. github地址：https://github.com/jiangxufeng/v2rayL\n"
-        "3. 目前支持协议有：Vmess、shadowsocks\n"
-        "4. 支持通过分享链接、二维码导入和分享配置\n"
+        self.label.setText(_translate("HelpUi",
+        "1. github地址：https://github.com/jiangxufeng/v2rayL\n"
+        "2. 目前支持协议有：Vmess、shadowsocks\n"
+        "3. 支持通过分享链接、二维码导入和分享配置,手动配置\n"
+        "4. 支持修改本地监听端口，范围为1080~10080\n"
         "5. 开发环境为Ubuntu18.04+Python3.6，其他linux系统可能不兼容\n"
         "6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
 
@@ -776,57 +790,289 @@ class Ui_FirstPage(object):
 
 
 class Ui_Share_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(226, 171)
-        self.label = QLabel(Dialog)
-        self.label.setGeometry(QRect(20, 20, 191, 17))
-        self.label.setStyleSheet("font: 75 13pt \"新宋体\";")
-        self.label.setObjectName("label")
-        self.pushButton = QPushButton(Dialog)
-        self.pushButton.setGeometry(QRect(40, 60, 141, 31))
-        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
-        "#pushButton:hover{ background: #5599FF;}")
-        self.pushButton.setObjectName("pushButton")
-        self.pushButton_2 = QPushButton(Dialog)
-        self.pushButton_2.setGeometry(QRect(40, 110, 141, 31))
-        self.pushButton_2.setStyleSheet("#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
-        "#pushButton_2:hover{ background: #5599FF;}")
-        self.pushButton_2.setObjectName("pushButton_2")
-
-        self.retranslateUi(Dialog)
-        QMetaObject.connectSlotsByName(Dialog)
-
-    def retranslateUi(self, Dialog):
-        _translate = QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "配置分享"))
-        self.label.setText(_translate("Dialog", "请选择以下一种方式分享"))
-        self.pushButton.setText(_translate("Dialog", "二维码分享"))
-        self.pushButton_2.setText(_translate("Dialog", "链接分享"))
-
-
-class Ui_Qr_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(218, 218)
-        Dialog.setMinimumSize(QSize(218, 218))
-        Dialog.setMaximumSize(QSize(218, 218))
-        self.gridLayout = QGridLayout(Dialog)
-        self.gridLayout.setObjectName("gridLayout")
-        self.label = QLabel(Dialog)
-        self.label.setEnabled(True)
-        self.label.setMinimumSize(QSize(200, 200))
-        self.label.setMaximumSize(QSize(200, 200))
+    def setupUi(self, dialog):
+        dialog.setObjectName("dialog")
+        dialog.resize(565, 480)
+        dialog.setStyleSheet("#dialog{color:#232C51;  background:white; }")
+        dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+        self.label = QLabel(dialog)
+        self.label.setGeometry(QRect(170, 20, 200, 200))
         self.label.setText("")
         self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.textBrowser = QTextBrowser(dialog)
+        self.textBrowser.setGeometry(QRect(20, 250, 501, 171))
+        self.textBrowser.setObjectName("textBrowser")
+
+        self.retranslateUi(dialog)
+        QMetaObject.connectSlotsByName(dialog)
+
+    def retranslateUi(self, dialog):
+        _translate = QCoreApplication.translate
+        dialog.setWindowTitle(_translate("dialog", "配置分享"))
+
+
+class Ui_Add_Ss_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(314, 329)
+        Dialog.setStyleSheet("""
+                   #Dialog{
+                color:#232C51;
+                background:white;
+            }
+            """)
+        Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+       # Dialog.setAttribute(Qt.WA_TranslucentBackground)  # 设置窗口背景透明
+        self.label = QLabel(Dialog)
+        self.label.setGeometry(QRect(20, 30, 111, 20))
+        self.label.setObjectName("label")
+        self.label_2 = QLabel(Dialog)
+        self.label_2.setGeometry(QRect(20, 80, 121, 17))
+        self.label_2.setObjectName("label_2")
+        self.lineEdit_2 = QLineEdit(Dialog)
+        self.lineEdit_2.setGeometry(QRect(70, 30, 221, 25))
+        self.lineEdit_2.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_2.setText("")
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.label_3 = QLabel(Dialog)
+        self.label_3.setGeometry(QRect(20, 130, 121, 17))
+        self.label_3.setObjectName("label_3")
+        self.label_4 = QLabel(Dialog)
+        self.label_4.setGeometry(QRect(20, 180, 131, 17))
+        self.label_4.setObjectName("label_4")
+        self.label_5 = QLabel(Dialog)
+        self.label_5.setGeometry(QRect(20, 230, 121, 17))
+        self.label_5.setObjectName("label_5")
+        self.lineEdit_3 = QLineEdit(Dialog)
+        self.lineEdit_3.setGeometry(QRect(70, 80, 221, 25))
+        self.lineEdit_3.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_3.setText("")
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.lineEdit_4 = QLineEdit(Dialog)
+        self.lineEdit_4.setGeometry(QRect(70, 130, 221, 25))
+        self.lineEdit_4.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_4.setText("")
+        self.lineEdit_4.setObjectName("lineEdit_4")
+        self.lineEdit_5 = QLineEdit(Dialog)
+        self.lineEdit_5.setGeometry(QRect(70, 180, 221, 25))
+        self.lineEdit_5.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_5.setText("")
+        self.lineEdit_5.setObjectName("lineEdit_5")
+        self.lineEdit_5.setEchoMode(QLineEdit.Password)
+        self.comboBox = QComboBox(Dialog)
+        self.comboBox.setGeometry(QRect(100, 230, 191, 25))
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.pushButton = QPushButton(Dialog)
+        self.pushButton.setGeometry(QRect(80, 280, 151, 31))
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; } \n"
+"#pushButton:hover{ background: #5599FF;}")
+        self.pushButton.setObjectName("pushButton")
+        self.line = QFrame(Dialog)
+        self.line.setGeometry(QRect(70, 50, 231, 16))
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.line_2 = QFrame(Dialog)
+        self.line_2.setGeometry(QRect(70, 100, 231, 16))
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.line_3 = QFrame(Dialog)
+        self.line_3.setGeometry(QRect(70, 150, 231, 16))
+        self.line_3.setFrameShape(QFrame.HLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+        self.line_3.setObjectName("line_3")
+        self.line_4 = QFrame(Dialog)
+        self.line_4.setGeometry(QRect(70, 200, 231, 16))
+        self.line_4.setFrameShape(QFrame.HLine)
+        self.line_4.setFrameShadow(QFrame.Sunken)
+        self.line_4.setObjectName("line_4")
 
         self.retranslateUi(Dialog)
         QMetaObject.connectSlotsByName(Dialog)
 
     def retranslateUi(self, Dialog):
         _translate = QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "二维码分享配置"))
+        Dialog.setWindowTitle(_translate("Dialog", "手动添加ShadowSocks配置"))
+        self.label.setText(_translate("Dialog", "别名:"))
+        self.label_2.setText(_translate("Dialog", "地址:"))
+        self.label_3.setText(_translate("Dialog", "端口:"))
+        self.label_4.setText(_translate("Dialog", "密码:"))
+        self.label_5.setText(_translate("Dialog", "加密方式:"))
+        self.comboBox.setItemText(0, _translate("Dialog", "aes-256-cfb"))
+        self.comboBox.setItemText(1, _translate("Dialog", "aes-128-cfb"))
+        self.comboBox.setItemText(2, _translate("Dialog", "chacha20"))
+        self.comboBox.setItemText(3, _translate("Dialog", "chacha20-ietf"))
+        self.comboBox.setItemText(4, _translate("Dialog", "aes-256-gcm"))
+        self.comboBox.setItemText(5, _translate("Dialog", "aes-128-gcm"))
+        self.comboBox.setItemText(6, _translate("Dialog", "chacha20-poly1305"))
+        self.comboBox.setItemText(7, _translate("Dialog", "chacha20-ietf-poly1305"))
+        self.pushButton.setText(_translate("Dialog", "确认添加"))
+
+
+class Ui_Add_Vmess_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(465, 527)
+        Dialog.setStyleSheet("#Dialog{color:#232C51;  background:white; }")
+        Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+        self.label = QLabel(Dialog)
+        self.label.setGeometry(QRect(30, 35, 111, 17))
+        self.label.setObjectName("label")
+        self.lineEdit = QLineEdit(Dialog)
+        self.lineEdit.setGeometry(QRect(140, 30, 301, 25))
+        self.lineEdit.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit.setText("")
+        self.lineEdit.setObjectName("lineEdit")
+        self.label_2 = QLabel(Dialog)
+        self.label_2.setGeometry(QRect(30, 75, 121, 17))
+        self.label_2.setObjectName("label_2")
+        self.lineEdit_2 = QLineEdit(Dialog)
+        self.lineEdit_2.setGeometry(QRect(120, 70, 321, 25))
+        self.lineEdit_2.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_2.setText("")
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.label_3 = QLabel(Dialog)
+        self.label_3.setGeometry(QRect(30, 115, 101, 17))
+        self.label_3.setObjectName("label_3")
+        self.lineEdit_3 = QLineEdit(Dialog)
+        self.lineEdit_3.setGeometry(QRect(120, 110, 321, 25))
+        self.lineEdit_3.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_3.setText("")
+        self.lineEdit_3.setObjectName("lineEdit_3")
+        self.label_4 = QLabel(Dialog)
+        self.label_4.setGeometry(QRect(30, 155, 91, 17))
+        self.label_4.setObjectName("label_4")
+        self.lineEdit_4 = QLineEdit(Dialog)
+        self.lineEdit_4.setGeometry(QRect(120, 150, 321, 25))
+        self.lineEdit_4.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_4.setText("")
+        self.lineEdit_4.setObjectName("lineEdit_4")
+        self.lineEdit_5 = QLineEdit(Dialog)
+        self.lineEdit_5.setGeometry(QRect(150, 190, 291, 25))
+        self.lineEdit_5.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_5.setText("")
+        self.lineEdit_5.setObjectName("lineEdit_5")
+        self.label_5 = QLabel(Dialog)
+        self.label_5.setGeometry(QRect(30, 195, 111, 17))
+        self.label_5.setObjectName("label_5")
+        self.label_6 = QLabel(Dialog)
+        self.label_6.setGeometry(QRect(30, 240, 121, 17))
+        self.label_6.setObjectName("label_6")
+        self.label_7 = QLabel(Dialog)
+        self.label_7.setGeometry(QRect(30, 330, 111, 17))
+        self.label_7.setObjectName("label_7")
+        self.comboBox = QComboBox(Dialog)
+        self.comboBox.setGeometry(QRect(150, 235, 86, 25))
+        #self.comboBox.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.label_8 = QLabel(Dialog)
+        self.label_8.setGeometry(QRect(30, 286, 221, 21))
+        self.label_8.setObjectName("label_8")
+        self.comboBox_2 = QComboBox(Dialog)
+        self.comboBox_2.setGeometry(QRect(150, 325, 86, 25))
+        #self.comboBox_2.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.comboBox_2.setObjectName("comboBox_2")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("")
+        self.label_9 = QLabel(Dialog)
+        self.label_9.setGeometry(QRect(30, 365, 121, 17))
+        self.label_9.setObjectName("label_9")
+        self.lineEdit_6 = QLineEdit(Dialog)
+        self.lineEdit_6.setGeometry(QRect(150, 360, 291, 25))
+        self.lineEdit_6.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_6.setText("")
+        self.lineEdit_6.setObjectName("lineEdit_6")
+        self.label_10 = QLabel(Dialog)
+        self.label_10.setGeometry(QRect(30, 410, 67, 17))
+        self.label_10.setObjectName("label_10")
+        self.lineEdit_7 = QLineEdit(Dialog)
+        self.lineEdit_7.setGeometry(QRect(80, 405, 361, 25))
+        self.lineEdit_7.setStyleSheet("border-style:none none solid none;background-color:transparent;")
+        self.lineEdit_7.setText("")
+        self.lineEdit_7.setObjectName("lineEdit_7")
+        self.line = QFrame(Dialog)
+        self.line.setGeometry(QRect(140, 45, 301, 16))
+        self.line.setFrameShape(QFrame.HLine)
+        self.line.setFrameShadow(QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.line_2 = QFrame(Dialog)
+        self.line_2.setGeometry(QRect(120, 90, 321, 16))
+        self.line_2.setFrameShape(QFrame.HLine)
+        self.line_2.setFrameShadow(QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.line_3 = QFrame(Dialog)
+        self.line_3.setGeometry(QRect(120, 130, 321, 16))
+        self.line_3.setFrameShape(QFrame.HLine)
+        self.line_3.setFrameShadow(QFrame.Sunken)
+        self.line_3.setObjectName("line_3")
+        self.line_4 = QFrame(Dialog)
+        self.line_4.setGeometry(QRect(120, 170, 321, 16))
+        self.line_4.setFrameShape(QFrame.HLine)
+        self.line_4.setFrameShadow(QFrame.Sunken)
+        self.line_4.setObjectName("line_4")
+        self.line_5 = QFrame(Dialog)
+        self.line_5.setGeometry(QRect(150, 210, 291, 20))
+        self.line_5.setFrameShape(QFrame.HLine)
+        self.line_5.setFrameShadow(QFrame.Sunken)
+        self.line_5.setObjectName("line_5")
+        self.line_6 = QFrame(Dialog)
+        self.line_6.setGeometry(QRect(150, 380, 291, 20))
+        self.line_6.setFrameShape(QFrame.HLine)
+        self.line_6.setFrameShadow(QFrame.Sunken)
+        self.line_6.setObjectName("line_6")
+        self.line_7 = QFrame(Dialog)
+        self.line_7.setGeometry(QRect(80, 420, 361, 20))
+        self.line_7.setFrameShape(QFrame.HLine)
+        self.line_7.setFrameShadow(QFrame.Sunken)
+        self.line_7.setObjectName("line_7")
+        self.pushButton = QPushButton(Dialog)
+        self.pushButton.setGeometry(QRect(160, 464, 151, 31))
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+"#pushButton:hover{ background: #5599FF;}")
+        self.pushButton.setObjectName("pushButton")
+
+        self.retranslateUi(Dialog)
+        QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "手动添加Vmess配置"))
+        self.label.setText(_translate("Dialog", "别名(remark)："))
+        self.label_2.setText(_translate("Dialog", "地址(addr)："))
+        self.label_3.setText(_translate("Dialog", "端口(port)："))
+        self.label_4.setText(_translate("Dialog", "用户ID(id)："))
+        self.label_5.setText(_translate("Dialog", "额外ID(alterId)："))
+        self.label_6.setText(_translate("Dialog", "传输协议(net)："))
+        self.label_7.setText(_translate("Dialog", "伪装类型(type)："))
+        self.comboBox.setItemText(0, _translate("Dialog", "ws"))
+        self.comboBox.setItemText(1, _translate("Dialog", "kcp"))
+        self.label_8.setText(_translate("Dialog", "下列配置无则保持默认"))
+        self.comboBox_2.setItemText(0, _translate("Dialog", "none"))
+        self.comboBox_2.setItemText(1, _translate("Dialog", "http"))
+        self.comboBox_2.setItemText(2, _translate("Dialog", "utp"))
+        self.comboBox_2.setItemText(3, _translate("Dialog", "wechat-video"))
+        self.comboBox_2.setItemText(4, _translate("Dialog", "dtls"))
+        self.comboBox_2.setItemText(5, _translate("Dialog", "strp"))
+        self.comboBox_2.setItemText(6, _translate("Dialog", "wireguard"))
+        self.label_9.setText(_translate("Dialog", "伪装域名(host)："))
+        self.label_10.setText(_translate("Dialog", "path："))
+        self.pushButton.setText(_translate("Dialog", "确认添加"))
 
 def main():
     app = QApplication(sys.argv)

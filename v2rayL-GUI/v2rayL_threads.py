@@ -29,7 +29,7 @@ class ConnectThread(QThread):
             self.sinOut.emit(("conn", "@@Fail@@", "未选中配置无法连接，请导入配置后再次连接", None))
         else:
             try:
-                self.v2rayL.connect(region)
+                self.v2rayL.connect(region, False)
             except MyException as e:
                 self.sinOut.emit(("conn", "@@Fail@@", e.args[0], None))
             else:

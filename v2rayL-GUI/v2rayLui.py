@@ -2,6 +2,9 @@
 # Author: Suummmmer
 # Date: 2019-08-13
 
+import json
+import random
+import base64
 import requests
 import subprocess
 import pickle
@@ -13,9 +16,9 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QSystemTrayIcon,
     qApp,
-    QMainWindow
+    QDialog
 )
-+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 from v2rayL_api import V2rayL, MyException
 import pyzbar.pyzbar as pyzbar
@@ -28,7 +31,7 @@ from v2rayL_threads import (
     CheckUpdateThread,
     VersionUpdateThread
 )
-from new_ui import MainUi, SwitchBtn
+from new_ui import MainUi, SwitchBtn, Ui_Add_Ss_Dialog, Ui_Add_Vmess_Dialog
 
 
 class SystemTray(object):
@@ -82,7 +85,7 @@ class MyMainWindow(MainUi):
         super(MyMainWindow, self).__init__(parent)
         self.init_ui()
 
-        self.version = "2.0.4"
+        self.version = "2.1.0"
 
         # 获取api操作
         self.v2rayL = V2rayL()
@@ -129,7 +132,9 @@ class MyMainWindow(MainUi):
 
         # 填充当前订阅地址
         self.config_setting_ui.lineEdit.setText(self.v2rayL.url)
-        #
+        # 端口
+        self.system_setting_ui.http_sp.setValue(self.v2rayL.http)
+        self.system_setting_ui.socks_sp.setValue(self.v2rayL.socks)
         # # 显示当前所有配置
         self.display_all_conf()
 
@@ -152,7 +157,12 @@ class MyMainWindow(MainUi):
         self.ping_start.sinOut.connect(self.alert)  # 得到反馈
         self.check_update_start.sinOut.connect(self.alert)
         self.version_update_start.sinOut.connect(self.alert)
-
+        self.system_setting_ui.http_sp.valueChanged.connect(lambda: self.value_change(True))
+        self.system_setting_ui.socks_sp.valueChanged.connect(lambda: self.value_change(False))
+        self.config_setting_ui.pushButton_ss.clicked.connect(self.show_add_ss_dialog)
+        self.config_setting_ui.pushButton_vmess.clicked.connect(self.show_add_vmess_dialog)
+        self.ss_add_child_ui.pushButton.clicked.connect(self.add_ss_by_input)
+        self.vmess_add_child_ui.pushButton.clicked.connect(self.add_vmess_by_input)
         # 设置最小化到托盘
         SystemTray(self)
 
@@ -361,7 +371,7 @@ class MyMainWindow(MainUi):
                     if choice == QMessageBox.Yes:
                         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                         subprocess.call([shell], shell=True)
-                        self.version_update_start.url = "http://cloud.thinker.ink/update.sh"
+                        self.version_update_start.url = "http://dl.thinker.ink/update.sh"
                         self.version_update_start.start()
 
             elif tp == "vrud":
@@ -439,8 +449,24 @@ class MyMainWindow(MainUi):
         self.ping_start.start()
 
     def show_share_dialog(self, region):
-        self.share_child_ui.pushButton.clicked.connect(lambda: self.output_conf_by_qr(region))
-        self.share_child_ui.pushButton_2.clicked.connect(lambda: self.output_conf_by_uri(region))
+        ret = self.v2rayL.subs.conf2b64(region)
+        # 生成二维码
+        url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
+        try:
+            req = requests.get(url)
+            if req.status_code == 200:
+                qr = QPixmap()
+                qr.loadFromData(req.content)
+                self.share_child_ui.label.setPixmap(qr)
+                self.share_child_ui.label.setScaledContents(True)
+            else:
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
+                subprocess.call([shell], shell=True)
+        except:
+            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
+            subprocess.call([shell], shell=True)
+
+        self.share_child_ui.textBrowser.setText(ret)
         self.share_ui.show()
 
     def output_conf_by_uri(self, region):
@@ -448,14 +474,8 @@ class MyMainWindow(MainUi):
         输出分享链接
         :return:
         """
-        # if self.v2rayL.current != "未连接至VPN":
-        #     ret = self.v2rayL.subs.conf2b64(self.v2rayL.current)
-        #     QMessageBox.information(self, "分享链接", self.tr(ret))
-        # else:
-        #     shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 请连接一个VPN后再选择分享 -t 3"
-        #     subprocess.call([shell], shell=True)
         ret = self.v2rayL.subs.conf2b64(region)
-        QMessageBox.information(self, "分享链接", self.tr(ret))
+        # QMessageBox.information(self, "分享链接", self.tr(ret))
 
     def output_conf_by_qr(self, region):
         """
@@ -479,6 +499,120 @@ class MyMainWindow(MainUi):
         except:
             shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
             subprocess.call([shell], shell=True)
+
+    def value_change(self, flag):
+        """
+        端口改变
+        :param flag: true时为http， false为socks
+        :return:
+        """
+        with open("/etc/v2rayL/config.json", "r") as f:
+            ret = json.load(f)
+
+        if flag:
+            new_port = self.system_setting_ui.http_sp.value()
+            if new_port == ret["inbounds"][0]["port"]:
+                new_port = new_port + 1 if new_port < 10079 else new_port - 1
+                self.system_setting_ui.http_sp.setValue(new_port)
+            ret["inbounds"][1]["port"] = new_port
+        else:
+            new_port = self.system_setting_ui.socks_sp.value()
+            if new_port == ret["inbounds"][1]["port"]:
+                new_port = new_port + 1 if new_port < 10079 else new_port - 1
+                self.system_setting_ui.socks_sp.setValue(new_port)
+            ret["inbounds"][0]["port"] = new_port
+
+        with open("/etc/v2rayL/config.json", "w") as f:
+            f.write(json.dumps(ret, indent=4))
+
+        if flag:
+            self.v2rayL.http = new_port
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump((self.v2rayL.current, self.v2rayL.url, self.v2rayL.auto, self.v2rayL.check,
+                             new_port, self.v2rayL.socks), jf)
+        else:
+            self.v2rayL.socks = new_port
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump((self.v2rayL.current, self.v2rayL.url, self.v2rayL.auto, self.v2rayL.check,
+                             self.v2rayL.http, new_port), jf)
+
+        self.v2rayL.connect(self.v2rayL.current, True)
+
+    def show_add_ss_dialog(self):
+        """
+        显示手动添加ss配置窗口
+        :return:
+        """
+        self.ss_add_ui.show()
+
+    def show_add_vmess_dialog(self):
+        self.vmess_add_ui.show()
+
+    def add_ss_by_input(self):
+        remark = self.ss_add_child_ui.lineEdit_2.text().strip()
+        addr = self.ss_add_child_ui.lineEdit_3.text().strip()
+        port = self.ss_add_child_ui.lineEdit_4.text().strip()
+        password = self.ss_add_child_ui.lineEdit_5.text().strip()
+        method = self.ss_add_child_ui.comboBox.currentText()
+        # print(remark, addr, port, password, security)
+        if not remark:
+            remark = "shadowsocks_" + str(random.choice(range(10000, 99999)))
+
+        b64str = "ss://"+base64.b64encode("{}:{}@{}:{}".format(method, password, addr, port).encode()).decode()\
+                 + "#" + remark
+
+        self.v2rayL.addconf(b64str)
+        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 添加成功"
+        subprocess.call([shell], shell=True)
+        self.v2rayL = V2rayL()
+        self.display_all_conf()
+        self.ss_add_child_ui.lineEdit_2.setText("")
+        self.ss_add_child_ui.lineEdit_3.setText("")
+        self.ss_add_child_ui.lineEdit_4.setText("")
+        self.ss_add_child_ui.lineEdit_5.setText("")
+        self.ss_add_ui.hide()
+
+    def add_vmess_by_input(self):
+        remark = self.vmess_add_child_ui.lineEdit.text().strip()
+        addr = self.vmess_add_child_ui.lineEdit_2.text().strip()
+        port = self.vmess_add_child_ui.lineEdit_3.text().strip()
+        uid = self.vmess_add_child_ui.lineEdit_4.text().strip()
+        aid = self.vmess_add_child_ui.lineEdit_5.text().strip()
+        net = self.vmess_add_child_ui.comboBox.currentText()
+        types = self.vmess_add_child_ui.comboBox_2.currentText()
+        host = self.vmess_add_child_ui.lineEdit_6.text().strip()
+        path = self.vmess_add_child_ui.lineEdit_7.text().strip()
+        # print(remark, addr, port, password, security)
+        if not remark:
+            remark = "vmess_" + str(random.choice(range(10000, 99999)))
+        conf = {
+            'add': addr,
+            'port': port,
+            'host': host,
+            'ps': remark,
+            'id': uid,
+            'aid': aid,
+            'net': net,
+            'type': types,
+            'path': path,
+            'tls': "",
+            "v": 2
+        }
+        b64str = "vmess://" + base64.b64encode(str(conf).encode()).decode()
+
+        self.v2rayL.addconf(b64str)
+        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 添加成功"
+        subprocess.call([shell], shell=True)
+        self.v2rayL = V2rayL()
+        self.display_all_conf()
+        self.vmess_add_child_ui.lineEdit.setText("")
+        self.vmess_add_child_ui.lineEdit_2.setText("")
+        self.vmess_add_child_ui.lineEdit_3.setText("")
+        self.vmess_add_child_ui.lineEdit_4.setText("")
+        self.vmess_add_child_ui.lineEdit_5.setText("")
+        self.vmess_add_child_ui.lineEdit_6.setText("")
+        self.vmess_add_child_ui.lineEdit_7.setText("")
+        self.vmess_add_ui.hide()
 
 
 if __name__ == "__main__":

@@ -13,12 +13,14 @@ class V2rayL(object):
 
         try:
             with open("/etc/v2rayL/ncurrent", "rb") as f:
-                self.current, self.url, self.auto, self.check = pickle.load(f)
+                self.current, self.url, self.auto, self.check, self.http, self.socks = pickle.load(f)
         except:
             self.current = "未连接至VPN"
             self.url = None
             self.auto = False
             self.check = False
+            self.http = 1081
+            self.socks = 1080
 
         self.subs = Sub2Conf(subs_url=self.url)
 
@@ -27,7 +29,8 @@ class V2rayL(object):
                 self.subs.update()
             except:
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    pickle.dump((self.current, None, False), jf)
+                    pickle.dump(("未连接至VPN", None, False, False,
+                                 self.http, self.socks), jf)
                 raise MyException("更新失败, 已关闭自动更新，请更新订阅地址")
 
     def auto_check(self, flag):
@@ -44,14 +47,17 @@ class V2rayL(object):
         if flag:
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 self.auto = True
-                pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                pickle.dump((self.current, self.url, self.auto, self.check,
+                             self.http, self.socks), jf)
         else:
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 self.auto = False
-                pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                pickle.dump((self.current, self.url, self.auto, self.check,
+                             self.http, self.socks), jf)
 
-    def connect(self, region):
-        self.subs.setconf(region)
+    def connect(self, region, flag):
+        if not flag:
+            self.subs.setconf(region, self.http, self.socks)
         try:
             output = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
             if "Active: active" in output:
@@ -66,7 +72,8 @@ class V2rayL(object):
         else:
             self.current = region
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                pickle.dump((self.current, self.url, self.auto, self.check,
+                             self.http, self.socks), jf)
 
     def disconnect(self):
         try:
@@ -75,12 +82,14 @@ class V2rayL(object):
                 subprocess.call(["sudo systemctl stop v2rayL.service"], shell=True)
                 self.current = "未连接至VPN"
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                    pickle.dump((self.current, self.url, self.auto, self.check,
+                                 self.http, self.socks), jf)
             else:
                 if self.current != "未连接至VPN":
                     self.current = "未连接至VPN"
                     with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                        pickle.dump((self.current, self.url, self.auto, self.check), jf)
+                        pickle.dump((self.current, self.url, self.auto, self.check,
+                                     self.http, self.socks), jf)
                 else:
                     raise MyException("服务未开启，无需断开连接.")
         except Exception as e:
@@ -91,7 +100,8 @@ class V2rayL(object):
             self.subs = Sub2Conf(subs_url=url)
             self.subs.update()
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                pickle.dump((self.current, url, self.auto, self.check), jf)
+                pickle.dump((self.current, url, self.auto, self.check,
+                             self.http, self.socks), jf)
 
         else:
             if self.current in self.subs.saved_conf["subs"]:
@@ -101,11 +111,13 @@ class V2rayL(object):
                     pass
 
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    pickle.dump(("未连接至VPN", None, False), jf)
+                    pickle.dump(("未连接至VPN", None, False, False,
+                                 self.http, self.socks), jf)
 
             else:
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    pickle.dump((self.current, None, False), jf)
+                    pickle.dump((self.current, None, False, False,
+                                 self.http, self.socks), jf)
 
             with open("/etc/v2rayL/data", "wb") as f:
                 pickle.dump({"local": self.subs.saved_conf["local"], "subs": {}}, f)
@@ -120,8 +132,8 @@ class V2rayL(object):
     def ping(self):
         try:
             proxy = {
-                "http": "127.0.0.1:1081",
-                "https": "127.0.0.1:1081"
+                "http": "127.0.0.1:{}".format(self.http),
+                "https": "127.0.0.1:{}".format(self.http)
             }
             req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
             if req.status_code == 200:

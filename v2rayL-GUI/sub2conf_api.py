@@ -6,8 +6,9 @@ import base64
 import json
 import pickle
 import requests
+import copy
 import urllib.parse as parse
-from config import conf_template as conf
+from config import conf_template as tpl
 
 
 class Sub2Conf(object):
@@ -65,8 +66,12 @@ class Sub2Conf(object):
                 region = region + "_local"
         self.saved_conf[["local", "subs"][tp]][region] = ret
 
-    def setconf(self, region):
+    def setconf(self, region, http, socks):
         use_conf = self.conf[region]
+        conf = copy.deepcopy(tpl)
+        conf["inbounds"][0]["port"] = socks
+        conf["inbounds"][1]["port"] = http
+
         if use_conf['prot'] == "vmess":
             conf['outbounds'][0]["protocol"] = "vmess"
             conf['outbounds'][0]["settings"]["vnext"] = list()
