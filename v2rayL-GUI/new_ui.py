@@ -345,6 +345,19 @@ class MainUi(QMainWindow):
         self.vmess_add_child_ui = Ui_Add_Vmess_Dialog()
         self.vmess_add_child_ui.setupUi(self.vmess_add_ui)
 
+        # 托盘菜单
+        self.a1 = QAction('恢复(Show)')
+        self.a2 = QAction('退出(Exit)')
+        self.logMenu = QMenu("日志(Log)")
+        self.a3 = QAction('启用(Enable)', checkable=True)
+        self.a4 = QAction('禁用(Disable)', checkable=True)
+        self.logMenu.addAction(self.a3)
+        self.logMenu.addAction(self.a4)
+        self.tpMenu = QMenu()
+        self.tpMenu.addAction(self.a1)
+        self.tpMenu.addMenu(self.logMenu)
+        self.tpMenu.addAction(self.a2)
+
         self.current_page = self.first_widget
         self.config_setting_widget.hide()
         self.system_setting_widget.hide()
@@ -563,13 +576,19 @@ class Ui_SystemSettings(object):
         self.label_7.setStyleSheet("font: 13pt \"Purisa\";")
         self.label_7.setObjectName("label_7")
         self.label_6 = QLabel(SystemSettings)
-        self.label_6.setGeometry(QRect(60, 170, 461, 17))
+        self.label_6.setGeometry(QRect(60, 170, 500, 17))
         self.label_6.setStyleSheet("font: 10pt \"Purisa\";\n"
                                     "color: rgb(186, 189, 182);")
         self.label_6.setObjectName("label_6")
         self.label_8 = QLabel(SystemSettings)
-        self.label_8.setGeometry(QRect(320, 375, 201, 71))
+        self.label_8.setGeometry(QRect(180, 375, 201, 71))
         self.label_8.setObjectName("label_8")
+
+        # self.label_9 = QLabel(SystemSettings)
+        # self.label_9.setGeometry(QRect(300, 380, 231, 21))
+        # self.label_9.setStyleSheet("font: 13pt \"Purisa\";")
+        # self.label_9.setObjectName("label_7")
+
 
         self.http_sp = QSpinBox(SystemSettings)
         self.http_sp.setGeometry(QRect(130, 124, 80, 30))
@@ -586,6 +605,7 @@ class Ui_SystemSettings(object):
         self.switchBtn = SwitchBtn(self.label_8, True)
         self.switchBtn.setGeometry(0, 0, 60, 30)
 
+
         self.retranslateUi(SystemSettings)
         QMetaObject.connectSlotsByName(SystemSettings)
 
@@ -598,11 +618,11 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.1.0"))
+        self.version_label.setText(_translate("SystemSettings", "v2.1.1"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
-        self.label_7.setText(_translate("SystemSettings", "程序启动时自动进行检查更新"))
-        self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10080，每次修改都将更新**"))
-        # self.label_9.setText(_translate("SystemSettings", "1081"))
+        self.label_7.setText(_translate("SystemSettings", "自动检查更新"))
+        self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10080，每次修改都将更新。**"))
+        # self.label_9.setText(_translate("SystemSettings", "开机自动连接"))
         # self.label_10.setText(_translate("SystemSettings", "1080"))
 
 
@@ -630,7 +650,7 @@ class Ui_HelpUi(object):
         "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
-        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.0</span></p>\n"
+        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.1</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">说明</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p></body></html>"))
@@ -976,6 +996,7 @@ class Ui_Add_Vmess_Dialog(object):
         self.comboBox.setObjectName("comboBox")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.addItem("")
         self.label_8 = QLabel(Dialog)
         self.label_8.setGeometry(QRect(30, 286, 221, 21))
         self.label_8.setObjectName("label_8")
@@ -990,6 +1011,13 @@ class Ui_Add_Vmess_Dialog(object):
         self.comboBox_2.addItem("")
         self.comboBox_2.addItem("")
         self.comboBox_2.addItem("")
+
+        self.comboBox_3 = QComboBox(Dialog)
+        self.comboBox_3.setGeometry(QRect(150, 437, 86, 25))
+        # self.comboBox_2.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.comboBox_3.setObjectName("comboBox_2")
+        self.comboBox_3.addItem("")
+        self.comboBox_3.addItem("")
         self.label_9 = QLabel(Dialog)
         self.label_9.setGeometry(QRect(30, 365, 121, 17))
         self.label_9.setObjectName("label_9")
@@ -999,10 +1027,13 @@ class Ui_Add_Vmess_Dialog(object):
         self.lineEdit_6.setText("")
         self.lineEdit_6.setObjectName("lineEdit_6")
         self.label_10 = QLabel(Dialog)
-        self.label_10.setGeometry(QRect(30, 410, 67, 17))
+        self.label_10.setGeometry(QRect(30, 405, 67, 19))
         self.label_10.setObjectName("label_10")
+        self.label_11 = QLabel(Dialog)
+        self.label_11.setGeometry(QRect(30, 437, 125, 20))
+        self.label_11.setObjectName("label_11")
         self.lineEdit_7 = QLineEdit(Dialog)
-        self.lineEdit_7.setGeometry(QRect(80, 405, 361, 25))
+        self.lineEdit_7.setGeometry(QRect(80, 400, 361, 25))
         self.lineEdit_7.setStyleSheet("border-style:none none solid none;background-color:transparent;")
         self.lineEdit_7.setText("")
         self.lineEdit_7.setObjectName("lineEdit_7")
@@ -1012,37 +1043,37 @@ class Ui_Add_Vmess_Dialog(object):
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
         self.line_2 = QFrame(Dialog)
-        self.line_2.setGeometry(QRect(120, 90, 321, 16))
+        self.line_2.setGeometry(QRect(120, 88, 321, 16))
         self.line_2.setFrameShape(QFrame.HLine)
         self.line_2.setFrameShadow(QFrame.Sunken)
         self.line_2.setObjectName("line_2")
         self.line_3 = QFrame(Dialog)
-        self.line_3.setGeometry(QRect(120, 130, 321, 16))
+        self.line_3.setGeometry(QRect(120, 128, 321, 16))
         self.line_3.setFrameShape(QFrame.HLine)
         self.line_3.setFrameShadow(QFrame.Sunken)
         self.line_3.setObjectName("line_3")
         self.line_4 = QFrame(Dialog)
-        self.line_4.setGeometry(QRect(120, 170, 321, 16))
+        self.line_4.setGeometry(QRect(120, 168, 321, 16))
         self.line_4.setFrameShape(QFrame.HLine)
         self.line_4.setFrameShadow(QFrame.Sunken)
         self.line_4.setObjectName("line_4")
         self.line_5 = QFrame(Dialog)
-        self.line_5.setGeometry(QRect(150, 210, 291, 20))
+        self.line_5.setGeometry(QRect(150, 208, 291, 20))
         self.line_5.setFrameShape(QFrame.HLine)
         self.line_5.setFrameShadow(QFrame.Sunken)
         self.line_5.setObjectName("line_5")
         self.line_6 = QFrame(Dialog)
-        self.line_6.setGeometry(QRect(150, 380, 291, 20))
+        self.line_6.setGeometry(QRect(150, 378, 291, 20))
         self.line_6.setFrameShape(QFrame.HLine)
         self.line_6.setFrameShadow(QFrame.Sunken)
         self.line_6.setObjectName("line_6")
         self.line_7 = QFrame(Dialog)
-        self.line_7.setGeometry(QRect(80, 420, 361, 20))
+        self.line_7.setGeometry(QRect(80, 415, 361, 20))
         self.line_7.setFrameShape(QFrame.HLine)
         self.line_7.setFrameShadow(QFrame.Sunken)
         self.line_7.setObjectName("line_7")
         self.pushButton = QPushButton(Dialog)
-        self.pushButton.setGeometry(QRect(160, 464, 151, 31))
+        self.pushButton.setGeometry(QRect(160, 475, 151, 31))
         self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
 "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
@@ -1062,6 +1093,7 @@ class Ui_Add_Vmess_Dialog(object):
         self.label_7.setText(_translate("Dialog", "伪装类型(type)："))
         self.comboBox.setItemText(0, _translate("Dialog", "ws"))
         self.comboBox.setItemText(1, _translate("Dialog", "kcp"))
+        self.comboBox.setItemText(2, _translate("Dialog", "tcp"))
         self.label_8.setText(_translate("Dialog", "下列配置无则保持默认"))
         self.comboBox_2.setItemText(0, _translate("Dialog", "none"))
         self.comboBox_2.setItemText(1, _translate("Dialog", "http"))
@@ -1070,8 +1102,11 @@ class Ui_Add_Vmess_Dialog(object):
         self.comboBox_2.setItemText(4, _translate("Dialog", "dtls"))
         self.comboBox_2.setItemText(5, _translate("Dialog", "strp"))
         self.comboBox_2.setItemText(6, _translate("Dialog", "wireguard"))
+        self.comboBox_3.setItemText(0, _translate("Dialog", ""))
+        self.comboBox_3.setItemText(1, _translate("Dialog", "tls"))
         self.label_9.setText(_translate("Dialog", "伪装域名(host)："))
         self.label_10.setText(_translate("Dialog", "path："))
+        self.label_11.setText(_translate("Dialog", "底层传输安全："))
         self.pushButton.setText(_translate("Dialog", "确认添加"))
 
 def main():

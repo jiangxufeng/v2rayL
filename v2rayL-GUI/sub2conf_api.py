@@ -41,6 +41,13 @@ class Sub2Conf(object):
         '''
 
     def b642conf(self, prot, tp, b64str):
+        """
+        base64转化为dict类型配置
+        :param prot:
+        :param tp:
+        :param b64str:
+        :return:
+        """
         if prot == "vmess":
             ret = eval(parse.unquote(base64.b64decode(b64str).decode()))
             region = ret['ps']
@@ -67,6 +74,13 @@ class Sub2Conf(object):
         self.saved_conf[["local", "subs"][tp]][region] = ret
 
     def setconf(self, region, http, socks):
+        """
+        生成配置
+        :param region: 当前VPN别名
+        :param http: http端口
+        :param socks: socks端口
+        :return:
+        """
         use_conf = self.conf[region]
         conf = copy.deepcopy(tpl)
         conf["inbounds"][0]["port"] = socks
@@ -94,7 +108,7 @@ class Sub2Conf(object):
                     "security": "tls" if use_conf["tls"] else "",
                     "tlssettings": {
                         "allowInsecure": True,
-                        "serverName": use_conf["tls"]
+                        "serverName": use_conf["host"]
                     },
                     "wssettings": {
                         "connectionReuse": True,
@@ -122,6 +136,46 @@ class Sub2Conf(object):
                     },
                     "security": ""
                 }
+            # tcp
+            elif use_conf["net"] == "tcp":
+                conf['outbounds'][0]["streamSettings"] = {
+                    "network": use_conf["net"],
+                    "security": "",
+                    "tcpsettings": {
+                        "connectionReuse": True,
+                        "header": {
+                            "request": {
+                                "version": "1.1",
+                                "method": "GET",
+                                "path": [use_conf["path"]],
+                                "headers": {
+                                    "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"],
+                                    "Accept-Encoding": ["gzip, deflate"],
+                                    "Connection": ["keep-alive"],
+                                    "Pragma": "no-cache",
+                                    "Host": [use_conf["host"]]
+                                }
+                            },
+                            "type": use_conf["type"]
+                        }
+                    } if use_conf["type"] != "none" else {}
+                }
+            # QUIC
+            # elif use_conf["net"] == "quic":
+            #     conf['outbounds'][0]["streamSettings"] = {
+            #         "network": use_conf["net"],
+            #         "security": "tls" if use_conf["tls"] else "none",
+            #         "tlssettings": {
+            #             "allowInsecure": True,
+            #             "serverName": use_conf["host"]
+            #         },
+            #         "quicsettings": {
+            #             "headers": {
+            #                 "type": use_conf['type']
+            #             },
+            #             "key":
+            #         }
+            #     }
 
         elif use_conf['prot'] == "shadowsocks":
             conf['outbounds'][0]["protocol"] = "shadowsocks"
@@ -141,6 +195,11 @@ class Sub2Conf(object):
             f.write(json.dumps(conf, indent=4))
 
     def delconf(self, region):
+        """
+        删除一个配置
+        :param region: 配置名
+        :return:
+        """
         self.conf.pop(region)
         try:
             self.saved_conf['local'].pop(region)
@@ -157,15 +216,15 @@ class Sub2Conf(object):
         更新订阅
         """
         try:
-            ret = requests.get(self.subs_url)
+            ret = requests.get(self.subs_url, timeout=15)
             if ret.status_code != 200:
                 raise MyException("无法获取订阅信息，订阅站点访问失败")
             all_subs = base64.b64decode(ret.text + "==").decode().strip()
             if "vmess" not in all_subs or "ss" not in all_subs:
                 raise MyException("解析订阅信息失败，请确认链接正确")
             all_subs = all_subs.split("\n")
-        except:
-            raise MyException("解析订阅信息失败")
+        except Exception as e:
+            raise MyException(e.args[0])
 
         for sub in all_subs:
             self.origin.append(sub.split("://"))

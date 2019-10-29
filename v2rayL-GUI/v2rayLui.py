@@ -7,19 +7,15 @@ import random
 import base64
 import requests
 import subprocess
+import datetime
 import pickle
 from PyQt5.QtWidgets import (
-    QMenu,
-    QAction,
     QApplication,
     QMessageBox,
     QFileDialog,
-    QSystemTrayIcon,
-    qApp,
-    QDialog
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import Qt, qInfo, qInstallMessageHandler
+from PyQt5.QtGui import QPixmap
 from v2rayL_api import V2rayL, MyException
 import pyzbar.pyzbar as pyzbar
 from PIL import Image
@@ -29,63 +25,19 @@ from v2rayL_threads import (
     UpdateSubsThread,
     PingThread,
     CheckUpdateThread,
-    VersionUpdateThread
+    VersionUpdateThread,
+    RunCmdThread
 )
 from new_ui import MainUi, SwitchBtn, Ui_Add_Ss_Dialog, Ui_Add_Vmess_Dialog
-
-
-class SystemTray(object):
-    # 程序托盘类
-    def __init__(self, w):
-        self.app = app
-        self.w = w
-        QApplication.setQuitOnLastWindowClosed(False)  # 禁止默认的closed方法，
-        self.w.show()  # 不设置显示则为启动最小化到托盘
-        self.tp = QSystemTrayIcon(self.w)
-        self.initUI()
-        self.run()
-
-    def initUI(self):
-        # 设置托盘图标
-        self.tp.setIcon(QIcon('/etc/v2rayL/images/logo.ico'))
-
-    def quitApp(self):
-        # 退出程序
-        self.w.show()  # w.hide() #设置退出时是否显示主窗口
-        re = QMessageBox.question(self.w, "提示", "确认退出？", QMessageBox.Yes |
-                                  QMessageBox.No, QMessageBox.No)
-        if re == QMessageBox.Yes:
-            self.tp.setVisible(False)  # 隐藏托盘控件
-            qApp.quit()  # 退出程序
-            self.w.v2rayL.disconnect()
-
-    def act(self, reason):
-        # 主界面显示方法
-        if reason == 2 or reason == 3:
-            self.w.show()
-
-    def run(self):
-        a1 = QAction('恢复(Show)', triggered=self.w.show)
-        a3 = QAction('退出(Exit)', triggered=self.quitApp)
-        tpMenu = QMenu()
-        tpMenu.addAction(a1)
-        tpMenu.addAction(a3)
-        self.tp.setContextMenu(tpMenu)
-        self.tp.show()  # 不调用show不会显示系统托盘消息，图标隐藏无法调用
-
-        # 绑定提醒信息点击事件
-        # self.tp.messageClicked.connect(self.message)
-        # 绑定托盘菜单点击事件
-        self.tp.activated.connect(self.act)
-        sys.exit(self.app.exec_())  # 持续对app的连接
+from utils import SystemTray, qt_message_handler
 
 
 class MyMainWindow(MainUi):
     def __init__(self, parent=None):
         super(MyMainWindow, self).__init__(parent)
-        self.init_ui()
 
-        self.version = "2.1.0"
+        self.init_ui()
+        self.version = "2.1.1"
 
         # 获取api操作
         self.v2rayL = V2rayL()
@@ -102,7 +54,11 @@ class MyMainWindow(MainUi):
         self.check_update_start = CheckUpdateThread(version=self.version)
         # 更新版本线程
         self.version_update_start = VersionUpdateThread()
-        if self.v2rayL.auto:
+        # CMD线程
+        self.run_cmd_start = RunCmdThread()
+        self.run_cmd_start.start()
+
+        if self.v2rayL.current_status.auto:
             self.config_setting_ui.switchBtn = SwitchBtn(self.config_setting_ui.label_9, True)
             self.config_setting_ui.switchBtn.setGeometry(0, 0, 60, 30)
         else:
@@ -110,19 +66,21 @@ class MyMainWindow(MainUi):
             self.config_setting_ui.switchBtn.setGeometry(0, 0, 60, 30)
 
         # 自动更新订阅
-        if self.v2rayL.auto and self.v2rayL.url:
+        if self.v2rayL.current_status.auto and self.v2rayL.current_status.url:
             try:
                 self.update_subs_start.v2rayL = self.v2rayL
                 self.update_subs_start.subs_child_ui = None
                 self.update_subs_start.start()
             except:
                 with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    pickle.dump((self.v2rayL.current, None, False, self.v2rayL.check), jf)
+                    self.v2rayL.current_status.url = None
+                    self.v2rayL.current_status.auto = False
+                    pickle.dump(self.v2rayL.current_status, jf)
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("更新失败, 已关闭自动更新，请更新订阅地址")
                 subprocess.call([shell], shell=True)
 
         # 自动检查更新
-        if self.v2rayL.check:
+        if self.v2rayL.current_status.check:
             self.system_setting_ui.switchBtn = SwitchBtn(self.system_setting_ui.label_8, True)
             self.system_setting_ui.switchBtn.setGeometry(0, 0, 60, 30)
             self.check_update_start.start()
@@ -130,18 +88,29 @@ class MyMainWindow(MainUi):
             self.system_setting_ui.switchBtn = SwitchBtn(self.system_setting_ui.label_8, False)
             self.system_setting_ui.switchBtn.setGeometry(0, 0, 60, 30)
 
+        # 是否启用日志
+        if self.v2rayL.current_status.log:
+            self.a3.setChecked(True)
+            self.a4.setChecked(False)
+        else:
+            self.a4.setChecked(True)
+            self.a3.setChecked(False)
+
         # 填充当前订阅地址
-        self.config_setting_ui.lineEdit.setText(self.v2rayL.url)
+        self.config_setting_ui.lineEdit.setText(self.v2rayL.current_status.url)
         # 端口
-        self.system_setting_ui.http_sp.setValue(self.v2rayL.http)
-        self.system_setting_ui.socks_sp.setValue(self.v2rayL.socks)
+        self.system_setting_ui.http_sp.setValue(self.v2rayL.current_status.http)
+        self.system_setting_ui.socks_sp.setValue(self.v2rayL.current_status.socks)
         # # 显示当前所有配置
         self.display_all_conf()
+
+        qInfo("{}@$ff$@app start.".format(self.v2rayL.current_status.log))
 
         # self.ping_start = PingThread(tv=(self.tableView, self.v2rayL))
         # 事件绑定
         self.config_setting_ui.switchBtn.checkedChanged.connect(self.change_auto_update)
         self.system_setting_ui.switchBtn.checkedChanged.connect(self.change_check_update)
+        # self.system_setting_ui.switchBtn1.checkedChanged.connect(self.auto_on)
         self.first_ui.pushButton.clicked.connect(self.update_subs)  # 更新订阅
         self.config_setting_ui.pushButton_2.clicked.connect(self.output_conf)  # 导出配置文件
         self.config_setting_ui.pushButton.clicked.connect(self.get_conf_from_qr)  # 通过二维码导入
@@ -163,10 +132,22 @@ class MyMainWindow(MainUi):
         self.config_setting_ui.pushButton_vmess.clicked.connect(self.show_add_vmess_dialog)
         self.ss_add_child_ui.pushButton.clicked.connect(self.add_ss_by_input)
         self.vmess_add_child_ui.pushButton.clicked.connect(self.add_vmess_by_input)
+        self.a1.triggered.connect(self.show)
+        self.a3.triggered.connect(self.enable_log)
+        self.a4.triggered.connect(self.disable_log)
+
+         # print("hahh")
         # 设置最小化到托盘
-        SystemTray(self)
+        SystemTray(self, app)
+
+        # print("aaaaa")
 
     def check_update(self):
+        """
+        检查版本更新
+        :return:
+        """
+        print("hahah")
         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在检查版本更新."
         subprocess.call([shell], shell=True)
         self.check_update_start.start()
@@ -176,12 +157,13 @@ class MyMainWindow(MainUi):
         列出所有的可用配置
         :return:
         """
+        # print("Okokok")
         all_conf = self.v2rayL.subs.conf
         lists = []
         i = 1
         for k, v in all_conf.items():
             lists.append((i, k, str(v["add"])+":"+str(v["port"]), v["prot"],
-                          True if k == self.v2rayL.current else False, self.start_conn_th,
+                          True if k == self.v2rayL.current_status.current else False, self.start_conn_th,
                           self.del_conf, self.show_share_dialog))
             i += 1
         self.first_ui.tableWidget.setRowCount(i-1)
@@ -207,9 +189,9 @@ class MyMainWindow(MainUi):
                 subprocess.call([shell], shell=True)
                 self.update_addr_start.start()
             else:
-                self.config_setting_ui.lineEdit.setText(self.v2rayL.url)
+                self.config_setting_ui.lineEdit.setText(self.v2rayL.current_status.url)
         else:
-            if url == self.v2rayL.url:
+            if url == self.v2rayL.current_status.url:
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅地址未改变"
                 subprocess.call([shell], shell=True)
             else:
@@ -224,7 +206,7 @@ class MyMainWindow(MainUi):
         """
         self.update_subs_start.v2rayL = self.v2rayL
         self.update_subs_start.subs_child_ui = None
-        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅...... -t 1"
+        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅......"
         subprocess.call([shell], shell=True)
         self.update_subs_start.start()
 
@@ -298,7 +280,7 @@ class MyMainWindow(MainUi):
         except AttributeError:
             QMessageBox.information(self, "移除通知", self.tr("未选择任何配置."))
         else:
-            if self.v2rayL.current == region:
+            if self.v2rayL.current_status.current == region:
                 QMessageBox.information(self, "移除通知", self.tr("当前配置正在使用，无法移除."))
             else:
                 try:
@@ -336,27 +318,34 @@ class MyMainWindow(MainUi):
                 # QMessageBox.information(self, "连接成功", self.tr("连接成功！当前状态: " + ret))
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '连接成功！当前状态: " + ret + "'"
                 subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@Successfully connected to: {}".format(self.v2rayL.current_status.log, ret).encode())
                 self.display_all_conf()
 
             elif tp == "disconn":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL VPN连接已断开"
                 subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@VPN connection disconnected.".format(self.v2rayL.current_status.log))
                 self.display_all_conf()
 
             elif tp == "addr":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 更新订阅地址成功"
                 subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@Subscription address change to {}".format(self.v2rayL.current_status.log, ret))
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
 
             elif tp == "update":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅更新完成"
                 subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@Successfully updated subscription.".format(self.v2rayL.current_status.log))
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
 
             elif tp == "ping":
-                self.first_ui.time.setText(str(ret)+"ms")
+                if isinstance(ret, int):
+                    self.first_ui.time.setText(str(ret)+"ms")
+                else:
+                    self.first_ui.time.setText(ret)
 
             elif tp == "ckud":
                 if not row:
@@ -372,16 +361,26 @@ class MyMainWindow(MainUi):
                         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                         subprocess.call([shell], shell=True)
                         self.version_update_start.url = "http://dl.thinker.ink/update.sh"
+                        qInfo("{}@$ff$@Ready to update, the latest version number is: v{}.".format(
+                            self.v2rayL.current_status.log, row.json()['tag_name']))
                         self.version_update_start.start()
 
             elif tp == "vrud":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format(ret)
                 subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@Successfully updated to the latest version.".format(self.v2rayL.current_status.log))
 
         else:
             if tp == "addr":
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 地址设置错误"
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format(ret)
                 subprocess.call([shell], shell=True)
+                if ret == "无法获取订阅信息，订阅站点访问失败":
+                    ret = "Failed to access subscription site, unable to get subscription information"
+                elif ret == "解析订阅信息失败，请确认链接正确":
+                    ret = "Failed to resolve subscription information, please confirm the link is correct"
+                else:
+                    pass
+                qInfo("{}@$ff$@Failed to get subscriptions: {}.".format(self.v2rayL.current_status.log, ret))
 
             elif tp == "conn":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
@@ -400,6 +399,9 @@ class MyMainWindow(MainUi):
             elif tp == "vrud":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL {}".format(ret)
                 subprocess.call([shell], shell=True)
+
+            elif tp == "ping":
+                self.first_ui.time.setText(str(ret))
 
     def output_conf(self):
         """
@@ -422,83 +424,93 @@ class MyMainWindow(MainUi):
         是否自动更新订阅
         :return:
         """
-        if self.v2rayL.auto:
+        if self.v2rayL.current_status.auto:
             self.v2rayL.subscribe(False)
+            qInfo("{}@$ff$@Automatic update subscription is disabled.".format(self.v2rayL.current_status.log))
         else:
-            if not self.v2rayL.url:
+            if not self.v2rayL.current_status.url:
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 不存在订阅地址，无需开启自动更新订阅"
                 subprocess.call([shell], shell=True)
             self.v2rayL.subscribe(True)
+            qInfo("{}@$ff$@Automatic update subscription is enabled.".format(self.v2rayL.current_status.log))
 
     def change_check_update(self):
         """
         是否自动检查更新
         :return:
         """
-        if self.v2rayL.check:
+        if self.v2rayL.current_status.check:
             self.v2rayL.auto_check(False)
+            qInfo("{}@$ff$@Automatically check for version updates disabled.".format(self.v2rayL.current_status.log))
         else:
             self.v2rayL.auto_check(True)
+            qInfo("{}@$ff$@Automatically check for version updates enabled.".format(self.v2rayL.current_status.log))
 
     def start_ping_th(self):
         """
         开始测延时
         :return:
         """
+        self.first_ui.time.setText("正在测试")
         self.ping_start.v2rayL = self.v2rayL
         self.ping_start.start()
 
     def show_share_dialog(self, region):
+        """
+        展示分享窗口
+        :param region:
+        :return:
+        """
         ret = self.v2rayL.subs.conf2b64(region)
         # 生成二维码
         url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
         try:
-            req = requests.get(url)
+            req = requests.get(url, timeout=2)
             if req.status_code == 200:
                 qr = QPixmap()
                 qr.loadFromData(req.content)
                 self.share_child_ui.label.setPixmap(qr)
                 self.share_child_ui.label.setScaledContents(True)
             else:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 生成二维码失败，可能原因：调用API发生错误"
                 subprocess.call([shell], shell=True)
         except:
-            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
+            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 生成二维码失败，请将错误在github中提交"
             subprocess.call([shell], shell=True)
 
         self.share_child_ui.textBrowser.setText(ret)
         self.share_ui.show()
 
-    def output_conf_by_uri(self, region):
-        """
-        输出分享链接
-        :return:
-        """
-        ret = self.v2rayL.subs.conf2b64(region)
-        # QMessageBox.information(self, "分享链接", self.tr(ret))
+    # def output_conf_by_uri(self, region):
+    #     """
+    #     输出分享链接
+    #     :return:
+    #     """
+    #     ret = self.v2rayL.subs.conf2b64(region)
+    #     # QMessageBox.information(self, "分享链接", self.tr(ret))
 
-    def output_conf_by_qr(self, region):
-        """
-        输出分享二维码
-        :return:
-        """
-        ret = self.v2rayL.subs.conf2b64(region)
-        # 生成二维码
-        url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
-        try:
-            req = requests.get(url)
-            if req.status_code == 200:
-                qr = QPixmap()
-                qr.loadFromData(req.content)
-                self.qr_child_ui.label.setPixmap(qr)
-                self.qr_child_ui.label.setScaledContents(True)
-                self.qr_ui.show()
-            else:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
-                subprocess.call([shell], shell=True)
-        except:
-            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
-            subprocess.call([shell], shell=True)
+    # def output_conf_by_qr(self, region):
+    #     """
+    #     输出分享二维码
+    #     :return:
+    #     """
+    #     ret = self.v2rayL.subs.conf2b64(region)
+    #     # 生成二维码
+    #     url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
+    #     try:
+    #         req = requests.get(url)
+    #         if req.status_code == 200:
+    #             qr = QPixmap()
+    #             qr.loadFromData(req.content)
+    #             self.qr_child_ui.label.setPixmap(qr)
+    #             self.qr_child_ui.label.setScaledContents(True)
+    #             self.qr_ui.show()
+    #         else:
+    #             shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
+    #             subprocess.call([shell], shell=True)
+    #     except:
+    #         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
+    #         subprocess.call([shell], shell=True)
 
     def value_change(self, flag):
         """
@@ -506,37 +518,57 @@ class MyMainWindow(MainUi):
         :param flag: true时为http， false为socks
         :return:
         """
-        with open("/etc/v2rayL/config.json", "r") as f:
-            ret = json.load(f)
+        http_port = self.system_setting_ui.http_sp.value()
+        socks_port = self.system_setting_ui.socks_sp.value()
 
         if flag:
-            new_port = self.system_setting_ui.http_sp.value()
-            if new_port == ret["inbounds"][0]["port"]:
-                new_port = new_port + 1 if new_port < 10079 else new_port - 1
-                self.system_setting_ui.http_sp.setValue(new_port)
-            ret["inbounds"][1]["port"] = new_port
-        else:
-            new_port = self.system_setting_ui.socks_sp.value()
-            if new_port == ret["inbounds"][1]["port"]:
-                new_port = new_port + 1 if new_port < 10079 else new_port - 1
-                self.system_setting_ui.socks_sp.setValue(new_port)
-            ret["inbounds"][0]["port"] = new_port
+            if http_port == self.v2rayL.current_status.socks:
+                http_port = http_port + 1 if http_port < 10079 else http_port - 1
+                self.system_setting_ui.http_sp.setValue(http_port)
+            self.v2rayL.current_status.http = http_port
 
-        with open("/etc/v2rayL/config.json", "w") as f:
-            f.write(json.dumps(ret, indent=4))
-
-        if flag:
-            self.v2rayL.http = new_port
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                pickle.dump((self.v2rayL.current, self.v2rayL.url, self.v2rayL.auto, self.v2rayL.check,
-                             new_port, self.v2rayL.socks), jf)
-        else:
-            self.v2rayL.socks = new_port
-            with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                pickle.dump((self.v2rayL.current, self.v2rayL.url, self.v2rayL.auto, self.v2rayL.check,
-                             self.v2rayL.http, new_port), jf)
+                pickle.dump(self.v2rayL.current_status, jf)
 
-        self.v2rayL.connect(self.v2rayL.current, True)
+            qInfo("{}@$ff$@HTTP port is changed to {}".format(self.v2rayL.current_status.log, http_port))
+
+        else:
+            if socks_port == self.v2rayL.current_status.http:
+                socks_port = socks_port + 1 if socks_port < 10079 else socks_port - 1
+                self.system_setting_ui.socks_sp.setValue(socks_port)
+
+            self.v2rayL.current_status.socks = socks_port
+
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump(self.v2rayL.current_status, jf)
+
+            qInfo("{}@$ff$@SOCKS port is changed to {}".format(self.v2rayL.current_status.log, socks_port))
+
+        try:
+            with open("/etc/v2rayL/config.json", "r") as f:
+                ret = json.load(f)
+        except FileNotFoundError:
+            pass
+        else:
+            ret["inbounds"][1]["port"] = http_port
+            ret["inbounds"][0]["port"] = socks_port
+            with open("/etc/v2rayL/config.json", "w") as f:
+                f.write(json.dumps(ret, indent=4))
+
+        # if flag:
+        #     self.v2rayL.current_status.http = http_port
+        #     with open("/etc/v2rayL/ncurrent", "wb") as jf:
+        #         # self.v2rayL.current_status.http = http_port
+        #         pickle.dump(self.v2rayL.current_status, jf)
+        #     qInfo("{}@$ff$@HTTP port is changed to {}".format(self.v2rayL.current_status.log, http_port))
+        # else:
+        #     self.v2rayL.current_status.socks = socks_port
+        #     with open("/etc/v2rayL/ncurrent", "wb") as jf:
+        #         pickle.dump(self.v2rayL.current_status, jf)
+        #     qInfo("{}@$ff$@SOCKS port is changed to {}".format(self.v2rayL.current_status.log, socks_port))
+
+        if self.v2rayL.current_status.current != "未连接至VPN":
+            self.v2rayL.connect(self.v2rayL.current_status.current, True)
 
     def show_add_ss_dialog(self):
         """
@@ -546,9 +578,17 @@ class MyMainWindow(MainUi):
         self.ss_add_ui.show()
 
     def show_add_vmess_dialog(self):
+        """
+        显示添加Vmess配置窗口
+        :return:
+        """
         self.vmess_add_ui.show()
 
     def add_ss_by_input(self):
+        """
+        手动添加shadowsocks配置
+        :return:
+        """
         remark = self.ss_add_child_ui.lineEdit_2.text().strip()
         addr = self.ss_add_child_ui.lineEdit_3.text().strip()
         port = self.ss_add_child_ui.lineEdit_4.text().strip()
@@ -573,6 +613,10 @@ class MyMainWindow(MainUi):
         self.ss_add_ui.hide()
 
     def add_vmess_by_input(self):
+        """
+        手动添加vmess配置
+        :return:
+        """
         remark = self.vmess_add_child_ui.lineEdit.text().strip()
         addr = self.vmess_add_child_ui.lineEdit_2.text().strip()
         port = self.vmess_add_child_ui.lineEdit_3.text().strip()
@@ -582,6 +626,7 @@ class MyMainWindow(MainUi):
         types = self.vmess_add_child_ui.comboBox_2.currentText()
         host = self.vmess_add_child_ui.lineEdit_6.text().strip()
         path = self.vmess_add_child_ui.lineEdit_7.text().strip()
+        tls = self.vmess_add_child_ui.comboBox_3.currentText()
         # print(remark, addr, port, password, security)
         if not remark:
             remark = "vmess_" + str(random.choice(range(10000, 99999)))
@@ -595,7 +640,7 @@ class MyMainWindow(MainUi):
             'net': net,
             'type': types,
             'path': path,
-            'tls': "",
+            'tls': tls,
             "v": 2
         }
         b64str = "vmess://" + base64.b64encode(str(conf).encode()).decode()
@@ -614,10 +659,51 @@ class MyMainWindow(MainUi):
         self.vmess_add_child_ui.lineEdit_7.setText("")
         self.vmess_add_ui.hide()
 
+    def enable_log(self):
+        """
+        启用操作日志
+        :return:
+        """
+        self.v2rayL.current_status.log = True
+        qInfo("{}@$ff$@Operation log has been enabled".format(self.v2rayL.current_status.log))
+        self.a3.setChecked(True)
+        self.a4.setChecked(False)
+        self.v2rayL.logging(True)
+
+    def disable_log(self):
+        """
+        启用操作日志
+        :return:
+        """
+        qInfo("{}@$ff$@Operation log has been disabled".format(self.v2rayL.current_status.log))
+        self.v2rayL.current_status.log = False
+        self.a4.setChecked(True)
+        self.a3.setChecked(False)
+        self.v2rayL.logging(False)
+
+    # def output_ter_result(self, text):
+    #
+    #     if self.v2rayL.current_status.log:
+    #         with open("/etc/v2rayL/v2rayL_op.log", "a+") as f:
+    #             f.write(' %s - %s: %s\n' % (datetime.datetime.now(), "Info", text))
+
+    def auto_on(self):
+        """
+        开启/关闭开机自动连接
+        :return:
+        """
+        if self.v2rayL.current_status.on:
+            self.v2rayL.auto_on(False)
+            qInfo("{}@$ff$@Automatic connection when booting is disabled.".format(self.v2rayL.current_status.log))
+        else:
+            self.v2rayL.auto_on(True)
+            qInfo("{}@$ff$@Automatic connection when booting is enabled.".format(self.v2rayL.current_status.log))
+
 
 if __name__ == "__main__":
     import sys
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    qInstallMessageHandler(qt_message_handler)
     app = QApplication(sys.argv)
     myWin = MyMainWindow()
     # 显示在屏幕上
@@ -625,3 +711,4 @@ if __name__ == "__main__":
     # 系统exit()方法确保应用程序干净的退出
     # 的exec_()方法有下划线。因为执行是一个Python关键词。因此，exec_()代替
     sys.exit(app.exec_())
+

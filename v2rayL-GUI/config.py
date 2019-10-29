@@ -35,7 +35,10 @@ conf_template = {
     }
   ],
   "log": {
-      "loglevel": "warning"
+      "loglevel": "warning",
+      "access": "/etc/v2rayL/v2ray_access.log",
+      "error": "/etc/v2rayL/v2ray_error.log",
+
   },
   "outbounds": [{
           "mux": {
