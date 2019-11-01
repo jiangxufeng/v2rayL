@@ -76,24 +76,26 @@ class UpdateSubsThread(QThread):
     def run(self):
         # msg = QMessageBox.information()
         if self.subs_child_ui:
-            url = self.subs_child_ui.lineEdit.text()
+            remark = self.subs_child_ui.lineEdit.text().strip()
+            url = self.subs_child_ui.textEdit.toPlainText().strip()
             try:
-                self.v2rayL.update(url)
+                self.v2rayL.update(remark, url)
             except MyException as e:
                 self.sinOut.emit(("addr", "@@Fail@@", e.args[0], None))
             else:
                 self.sinOut.emit(("addr", "@@OK@@", url, None))
         else:
             url = self.v2rayL.current_status.url
+            # print(url)
             if not url:
                 self.sinOut.emit(("update", "@@Fail@@", "不存在订阅地址，无法更新", None))
             else:
                 try:
-                    self.v2rayL.update(url)
+                    error = self.v2rayL.update(None, url)
                 except MyException as e:
                     self.sinOut.emit(("update", "@@Fail@@", e.args[0], None))
                 else:
-                    self.sinOut.emit(("update", "@@OK@@", url, None))
+                    self.sinOut.emit(("update", "@@OK@@", (url, error), None))
 
 
 class PingThread(QThread):

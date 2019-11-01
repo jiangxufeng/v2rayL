@@ -12,7 +12,7 @@ class CurrentStatus(object):
     """
     保存当前状态
     """
-    def __init__(self, current="未连接至VPN", url=None, auto=False, check=False,
+    def __init__(self, current="未连接至VPN", url=set(), auto=False, check=False,
                  http=1081, socks=1080, log=True):
         """
         :param current: 当前连接状态
@@ -40,27 +40,9 @@ class V2rayL(object):
                 # self.current, self.url, self.auto, self.check, self.http, self.socks, self.log = pickle.load(f)
                 self.current_status = pickle.load(f)
         except:
-            # self.current = "未连接至VPN"
-            # self.url = None
-            # self.auto = False
-            # self.check = False
-            # self.http = 1081
-            # self.socks = 1080
-            # self.log = True
             self.current_status = CurrentStatus()
 
         self.subs = Sub2Conf(subs_url=self.current_status.url)
-
-        # if self.current_status.auto and self.current_status.url:
-        #     try:
-        #         self.subs.update()
-        #     except:
-        #         with open("/etc/v2rayL/ncurrent", "wb") as jf:
-        #             self.current_status = CurrentStatus(http=self.current_status.http,
-        #                                                 socks=self.current_status.socks,
-        #                                                 log=self.current_status.log)
-        #             pickle.dump(self.current_status, jf)
-        #         raise MyException("更新失败, 已关闭自动更新，请更新订阅地址")
 
     def auto_check(self, flag):
         """
@@ -100,19 +82,6 @@ class V2rayL(object):
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 self.current_status.log = False
                 pickle.dump(self.current_status, jf)
-
-    # def auto_on(self, flag):
-    #     """
-    #     启用/禁用开机自动连接
-    #     """
-    #     if flag:
-    #         with open("/etc/v2rayL/ncurrent", "wb") as jf:
-    #             self.current_status.on = True
-    #             pickle.dump(self.current_status, jf)
-    #     else:
-    #         with open("/etc/v2rayL/ncurrent", "wb") as jf:
-    #             self.current_status.on = False
-    #             pickle.dump(self.current_status, jf)
 
     def connect(self, region, flag):
         """
@@ -160,17 +129,26 @@ class V2rayL(object):
         except Exception as e:
             raise MyException(e.args[0])
 
-    def update(self, url):
+    def update(self, remark, url):
         """
         更新订阅
         """
-        if url:  # 如果存在订阅地址
+        if remark and url:  # 如果是添加单条
             self.subs = Sub2Conf(subs_url=url)
-            self.subs.update()
+            self.subs.update(False)
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                self.current_status.url = url
-                pickle.dump(pickle.dump(self.current_status, jf), jf)
+                self.current_status.url.add((remark, url))
+                pickle.dump(self.current_status, jf)
 
+        elif url:
+            # print(123)
+            self.subs = Sub2Conf(subs_url=self.current_status.url)
+            error_subs = self.subs.update(True)
+            for i in error_subs:
+                self.current_status.url.remove(i[0])
+            with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                pickle.dump(self.current_status, jf)
+            return error_subs
         else:
             if self.current_status.current in self.subs.saved_conf["subs"]:
                 try:
@@ -193,6 +171,8 @@ class V2rayL(object):
 
             with open("/etc/v2rayL/data", "wb") as f:
                 pickle.dump({"local": self.subs.saved_conf["local"], "subs": {}}, f)
+
+        return None
 
     def addconf(self, uri):
         """
@@ -225,14 +205,11 @@ class V2rayL(object):
 
 
 if __name__ == '__main__':
-    def ping():
-        try:
-            proxy = {
-                "http": "127.0.0.1:1081",
-                "https": "127.0.0.1:1081"
-            }
-            req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
-            if req.status_code == 200:
-                return req.elapsed.total_seconds()*1000
-        except:
-            print(11)
+    A = V2rayL()
+    with open("/etc/v2rayL/ncurrent", "wb") as jf:
+        A.current_status.url = set()
+        A.current_status.url.add(("tt", "https://v2ray.dlolb.ml"))
+        A.current_status.url.add(("asd", "https://sub.qianglie.xyz/subscribe"))
+        A.current_status.url.add(("test", "https://sub.qianglie.xyz/subsaae"))
+        A.current_status.url.add(("ql", "https://sub.qianglie.xyz/subscribe.php?sid=5582&token=g6e8VdU6C40H"))
+        pickle.dump(A.current_status, jf)

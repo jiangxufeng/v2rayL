@@ -6,6 +6,7 @@ import base64
 import json
 import pickle
 import requests
+import ast
 import copy
 import urllib.parse as parse
 from config import conf_template as tpl
@@ -49,7 +50,7 @@ class Sub2Conf(object):
         :return:
         """
         if prot == "vmess":
-            ret = eval(parse.unquote(base64.b64decode(b64str).decode()))
+            ret = ast.literal_eval(parse.unquote(base64.b64decode(b64str).decode()))
             region = ret['ps']
 
         elif prot == "shadowsocks":
@@ -108,7 +109,7 @@ class Sub2Conf(object):
                     "security": "tls" if use_conf["tls"] else "",
                     "tlssettings": {
                         "allowInsecure": True,
-                        "serverName": use_conf["host"]
+                        "serverName": use_conf["host"] if use_conf["tls"] else ""
                     },
                     "wssettings": {
                         "connectionReuse": True,
@@ -211,25 +212,47 @@ class Sub2Conf(object):
         with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
-    def update(self):
+    def update(self, flag):
         """
         更新订阅
+        :param flag: True, 整体更新, False, 添加
         """
-        try:
-            ret = requests.get(self.subs_url, timeout=15)
-            if ret.status_code != 200:
-                raise MyException("无法获取订阅信息，订阅站点访问失败")
-            all_subs = base64.b64decode(ret.text + "==").decode().strip()
-            if "vmess" not in all_subs or "ss" not in all_subs:
-                raise MyException("解析订阅信息失败，请确认链接正确")
-            all_subs = all_subs.split("\n")
-        except Exception as e:
-            raise MyException(e.args[0])
+        error_subs = []
+        if flag:
+            all_subs = []
+            for url in self.subs_url:
+                # print(url)
+                try:
+                    ret = requests.get(url[1], timeout=15)
+                    if ret.status_code != 200:
+                        error_subs.append([url, "无法获取订阅信息，订阅站点访问失败"])
+                        raise MyException("无法获取订阅信息，订阅站点访问失败")
+                    subs = base64.b64decode(ret.text + "==").decode().strip()
+                    all_subs.extend(subs.split("\n"))
+                except:
+                    pass
+                    # raise MyException(e.args[0])
+                    # error_subs.append(url)
 
-        for sub in all_subs:
-            self.origin.append(sub.split("://"))
+            for sub in all_subs:
+                self.origin.append(sub.split("://"))
 
-        self.saved_conf["subs"] = {}
+            self.saved_conf["subs"] = {}
+
+        else:
+            try:
+                ret = requests.get(self.subs_url, timeout=15)
+                if ret.status_code != 200:
+                    raise MyException("无法获取订阅信息，订阅站点访问失败")
+                all_subs = base64.b64decode(ret.text + "==").decode().strip()
+                if "vmess" not in all_subs or "ss" not in all_subs:
+                    raise MyException("解析订阅信息失败，请确认链接正确")
+                all_subs = all_subs.split("\n")
+            except Exception as e:
+                raise MyException(e.args[0])
+
+            for sub in all_subs:
+                self.origin.append(sub.split("://"))
 
         for ori in self.origin:
             if ori[0] == "vmess":
@@ -242,6 +265,7 @@ class Sub2Conf(object):
         with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
+        return error_subs
     def add_conf_by_uri(self):
         """
         通过分享的连接添加配置

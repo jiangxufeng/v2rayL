@@ -345,6 +345,16 @@ class MainUi(QMainWindow):
         self.vmess_add_child_ui = Ui_Add_Vmess_Dialog()
         self.vmess_add_child_ui.setupUi(self.vmess_add_ui)
 
+        # 订阅设置窗口
+        self.subs_ui = QDialog()
+        self.subs_child_ui = Ui_Subs_Dialog()
+        self.subs_child_ui.setupUi(self.subs_ui)
+
+        # 订阅设置窗口
+        self.add_subs_ui = QDialog()
+        self.subs_add_child_ui = Ui_Add_Subs_Form()
+        self.subs_add_child_ui.setupUi(self.add_subs_ui)
+
         # 托盘菜单
         self.a1 = QAction('恢复(Show)')
         self.a2 = QAction('退出(Exit)')
@@ -434,7 +444,8 @@ class Ui_Setting1_Form(object):
                                     "background-color:transparent;")
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit.setPlaceholderText("http://或https://，可回车确认")
+        self.lineEdit.setPlaceholderText("当前无订阅地址")
+        self.lineEdit.setFocusPolicy(Qt.NoFocus)
         self.label = QLabel(Form)
         self.label.setGeometry(QRect(40, 320, 101, 17))
         self.label.setStyleSheet("font: 13pt \"Purisa\";")
@@ -523,7 +534,7 @@ class Ui_Setting1_Form(object):
     def retranslateUi(self, Form):
         _translate = QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.pushButton_3.setText(_translate("Form", "更新地址"))
+        self.pushButton_3.setText(_translate("Form", "地址设置"))
         self.label.setText(_translate("Form", "当前订阅地址"))
         self.label_2.setText(_translate("Form", "配置"))
         self.label_4.setText(_translate("Form", "通过URI添加"))
@@ -795,8 +806,6 @@ class Ui_FirstPage(object):
         ''')
         button2.clicked.connect(lambda: args[7](args[1]))
         self.tableWidget.setCellWidget(args[0]-1, 6, button2)
-
-
 
     def retranslateUi(self, Form):
         _translate = QCoreApplication.translate
@@ -1108,6 +1117,143 @@ class Ui_Add_Vmess_Dialog(object):
         self.label_10.setText(_translate("Dialog", "path："))
         self.label_11.setText(_translate("Dialog", "底层传输安全："))
         self.pushButton.setText(_translate("Dialog", "确认添加"))
+
+
+class Ui_Subs_Dialog(object):
+    def setupUi(self, dialog):
+        dialog.setObjectName("dialog")
+        dialog.resize(652, 350)
+        dialog.setMinimumSize(QSize(652, 350))
+        dialog.setMaximumSize(QSize(652, 350))
+        dialog.setStyleSheet("#dialog{background:white; }")
+        self.tableWidget = QTableWidget(dialog)
+        self.tableWidget.setGeometry(QRect(0, 0, 651, 260))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(4)
+        item = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(0, item)
+        item = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(1, item)
+        item = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(2, item)
+        item = QTableWidgetItem()
+        self.tableWidget.setHorizontalHeaderItem(3, item)
+        self.pushButton = QPushButton(dialog)
+        self.pushButton.setGeometry(QRect(240, 290, 191, 41))
+        self.pushButton.setStyleSheet(
+            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 18px; }\n"
+            "#pushButton:hover{ background: #5599FF;}")
+        self.pushButton.setObjectName("pushButton")
+
+        self.tableWidget.setShowGrid(False)
+        self.tableWidget.setFrameShape(QFrame.NoFrame)
+        self.tableWidget.verticalHeader().setVisible(False)
+        self.tableWidget.horizontalHeader().setFixedHeight(40)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(2)
+        self.tableWidget.horizontalHeader().setHighlightSections(False)
+        #self.tableWidget.horizontalHeader().setVisible(False)
+        self.tableWidget.setItemDelegate(CenterDelegate())
+        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.setColumnWidth(0, 30)
+        self.tableWidget.setColumnWidth(1, 100)
+        self.tableWidget.setColumnWidth(2, 425)
+        self.tableWidget.setColumnWidth(3, 30)
+        self.tableWidget.verticalHeader().setDefaultSectionSize(40)
+        self.tableWidget.setStyleSheet('''
+                    #tableWidget{
+                        selection-background-color:white;
+                    }
+
+                ''')
+        self.tableWidget.setFocusPolicy(Qt.NoFocus)
+
+
+        self.tableWidget.verticalScrollBar().setStyleSheet(
+            "QScrollBar{background:transparent; width: 12px;}"
+            "QScrollBar::handle{background:lightgray; border:2px solid transparent; border-radius:5px;}"
+            "QScrollBar::handle:hover{background:gray;}"
+            "QScrollBar::sub-line{background:transparent;}"
+            "QScrollBar::add-line{background:transparent;}")
+
+        self.retranslateUi(dialog)
+        QMetaObject.connectSlotsByName(dialog)
+
+    def retranslateUi(self, dialog):
+        _translate = QCoreApplication.translate
+        dialog.setWindowTitle(_translate("dialog", "v2rayL"))
+        item = self.tableWidget.horizontalHeaderItem(0)
+        item.setText(_translate("dialog", "序号"))
+        item = self.tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("dialog", "别名"))
+        item = self.tableWidget.horizontalHeaderItem(2)
+        item.setText(_translate("dialog", "订阅地址"))
+        item = self.tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("dialog", ""))
+        self.pushButton.setText(_translate("dialog", "新增订阅"))
+
+    def add_item(self, args):
+        # self.tableWidget.setRowCount(self.num)
+        item = QTableWidgetItem(str(args[0]))
+        self.tableWidget.setItem(args[0] - 1, 0, item)
+        item = QTableWidgetItem(args[1])
+        self.tableWidget.setItem(args[0] - 1, 1, item)
+        item = QTableWidgetItem(args[2][:57])
+        self.tableWidget.setItem(args[0] - 1, 2, item)
+        item = QTableWidgetItem("")
+        self.tableWidget.setItem(args[0] - 1, 3, item)
+        button1 = QPushButton("删除")
+        button1.setObjectName("delbt")
+        button1.setStyleSheet('''
+                       #delbt{border-width: 0px; 
+                       border-radius: 15px; 
+                       background: red; 
+                       outline: none; 
+                       font-family: Microsoft YaHei; 
+                       color: white; 
+                       font-size: 13px; 
+                       margin:5px;
+                       }
+                       #delbt:hover{ background: #FF6347;}
+                   ''')
+        button1.clicked.connect(lambda: args[3](args[0] - 1))
+        self.tableWidget.setCellWidget(args[0] - 1, 3, button1)
+
+
+class Ui_Add_Subs_Form(object):
+    def setupUi(self, dialog):
+        dialog.setObjectName("Form")
+        dialog.resize(312, 278)
+        dialog.setMinimumSize(QSize(312, 278))
+        dialog.setMaximumSize(QSize(312, 278))
+        self.label = QLabel(dialog)
+        self.label.setGeometry(QRect(20, 10, 51, 31))
+        self.label.setObjectName("label")
+        self.textEdit = QTextEdit(dialog)
+        self.textEdit.setGeometry(QRect(20, 120, 271, 101))
+        self.textEdit.setObjectName("textEdit")
+        self.label_2 = QLabel(dialog)
+        self.label_2.setGeometry(QRect(20, 90, 67, 17))
+        self.label_2.setObjectName("label_2")
+        self.lineEdit = QLineEdit(dialog)
+        self.lineEdit.setGeometry(QRect(20, 50, 271, 25))
+        self.lineEdit.setObjectName("lineEdit")
+        self.pushButton = QPushButton(dialog)
+        self.pushButton.setGeometry(QRect(110, 240, 90, 30))
+        self.pushButton.setObjectName("pushButton")
+        self.pushButton.setStyleSheet(
+            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 18px; }\n"
+            "#pushButton:hover{ background: #5599FF;}")
+
+        self.retranslateUi(dialog)
+        QMetaObject.connectSlotsByName(dialog)
+
+    def retranslateUi(self, dialog):
+        _translate = QCoreApplication.translate
+        dialog.setWindowTitle(_translate("dialog", "v2rayL"))
+        self.label.setText(_translate("dialog", "别名："))
+        self.label_2.setText(_translate("dialog", "地址："))
+        self.pushButton.setText(_translate("dialog", "添加"))
 
 def main():
     app = QApplication(sys.argv)

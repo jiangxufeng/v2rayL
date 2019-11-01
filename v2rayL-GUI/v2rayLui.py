@@ -28,7 +28,7 @@ from v2rayL_threads import (
     VersionUpdateThread,
     RunCmdThread
 )
-from new_ui import MainUi, SwitchBtn, Ui_Add_Ss_Dialog, Ui_Add_Vmess_Dialog
+from new_ui import MainUi, SwitchBtn, Ui_Add_Ss_Dialog, Ui_Add_Vmess_Dialog, Ui_Subs_Dialog
 from utils import SystemTray, qt_message_handler
 
 
@@ -72,11 +72,11 @@ class MyMainWindow(MainUi):
                 self.update_subs_start.subs_child_ui = None
                 self.update_subs_start.start()
             except:
-                with open("/etc/v2rayL/ncurrent", "wb") as jf:
-                    self.v2rayL.current_status.url = None
-                    self.v2rayL.current_status.auto = False
-                    pickle.dump(self.v2rayL.current_status, jf)
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("更新失败, 已关闭自动更新，请更新订阅地址")
+                # with open("/etc/v2rayL/ncurrent", "wb") as jf:
+                #     self.v2rayL.current_status.url = set()
+                #     self.v2rayL.current_status.auto = False
+                #     pickle.dump(self.v2rayL.current_status, jf)
+                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL '{}'".format("更新失败")
                 subprocess.call([shell], shell=True)
 
         # 自动检查更新
@@ -97,7 +97,8 @@ class MyMainWindow(MainUi):
             self.a3.setChecked(False)
 
         # 填充当前订阅地址
-        self.config_setting_ui.lineEdit.setText(self.v2rayL.current_status.url)
+       #  print(self.v2rayL.current_status.url)
+        self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
         # 端口
         self.system_setting_ui.http_sp.setValue(self.v2rayL.current_status.http)
         self.system_setting_ui.socks_sp.setValue(self.v2rayL.current_status.socks)
@@ -111,13 +112,15 @@ class MyMainWindow(MainUi):
         self.config_setting_ui.switchBtn.checkedChanged.connect(self.change_auto_update)
         self.system_setting_ui.switchBtn.checkedChanged.connect(self.change_check_update)
         # self.system_setting_ui.switchBtn1.checkedChanged.connect(self.auto_on)
-        self.first_ui.pushButton.clicked.connect(self.update_subs)  # 更新订阅
+        self.first_ui.pushButton.clicked.connect(lambda: self.update_subs(True))  # 更新订阅
+        self.subs_add_child_ui.pushButton.clicked.connect(self.change_subs_addr)
+        # self.subs_add_child_ui.textEdit.returnPressed.connect(self.change_subs_addr)
         self.config_setting_ui.pushButton_2.clicked.connect(self.output_conf)  # 导出配置文件
         self.config_setting_ui.pushButton.clicked.connect(self.get_conf_from_qr)  # 通过二维码导入
         self.first_ui.pushButton_1.clicked.connect(self.start_ping_th)  # 测试延时
         self.system_setting_ui.checkupdateButton.clicked.connect(self.check_update)  # 检查更新
-        self.config_setting_ui.lineEdit.returnPressed.connect(self.change_subs_addr)  # 更新订阅操作
-        self.config_setting_ui.pushButton_3.clicked.connect(self.change_subs_addr)  # 更新订阅操作
+       # self.config_setting_ui.lineEdit.returnPressed.connect(self.change_subs_addr)  # 更新订阅操作
+        self.config_setting_ui.pushButton_3.clicked.connect(self.show_subs_dialog)  # 显示具体订阅操作
         self.config_setting_ui.lineEdit_2.returnPressed.connect(self.get_conf_from_uri)  # 解析URI获取配置
         self.conn_start.sinOut.connect(self.alert)  # 得到连接反馈
         self.disconn_start.sinOut.connect(self.alert)  # 得到断开连接反馈
@@ -132,6 +135,7 @@ class MyMainWindow(MainUi):
         self.config_setting_ui.pushButton_vmess.clicked.connect(self.show_add_vmess_dialog)
         self.ss_add_child_ui.pushButton.clicked.connect(self.add_ss_by_input)
         self.vmess_add_child_ui.pushButton.clicked.connect(self.add_vmess_by_input)
+        self.subs_child_ui.pushButton.clicked.connect(self.show_add_subs_dialog)
         self.a1.triggered.connect(self.show)
         self.a3.triggered.connect(self.enable_log)
         self.a4.triggered.connect(self.disable_log)
@@ -147,7 +151,7 @@ class MyMainWindow(MainUi):
         检查版本更新
         :return:
         """
-        print("hahah")
+        # print("hahah")
         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在检查版本更新."
         subprocess.call([shell], shell=True)
         self.check_update_start.start()
@@ -157,7 +161,6 @@ class MyMainWindow(MainUi):
         列出所有的可用配置
         :return:
         """
-        # print("Okokok")
         all_conf = self.v2rayL.subs.conf
         lists = []
         i = 1
@@ -176,38 +179,29 @@ class MyMainWindow(MainUi):
         更新订阅地址
         :return:
         """
-        url = self.config_setting_ui.lineEdit.text()
+        remark = self.subs_add_child_ui.lineEdit.text()
+        url = self.subs_add_child_ui.textEdit.toPlainText()
         self.update_addr_start.v2rayL = self.v2rayL
-        self.update_addr_start.subs_child_ui = self.config_setting_ui
+        self.update_addr_start.subs_child_ui = self.subs_add_child_ui
         if not url:
-            choice = QMessageBox.warning(self, "订阅地址更新", self.tr("当前订阅地址为空，"
-                                                                 "继续则删除订阅地址，同时会删除所有订阅配置，"
-                                                                 "是否继续？"),
-                                         QMessageBox.Ok | QMessageBox.Cancel, QMessageBox.Cancel)
-            if choice == QMessageBox.Ok:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
-                subprocess.call([shell], shell=True)
-                self.update_addr_start.start()
-            else:
-                self.config_setting_ui.lineEdit.setText(self.v2rayL.current_status.url)
+            QMessageBox.warning(self, "添加订阅地址", self.tr("当前订阅地址为空，请输入订阅地址。"))
+        elif not remark:
+            QMessageBox.warning(self, "添加订阅地址", self.tr("当前别名为空，请输入别名。"))
         else:
-            if url == self.v2rayL.current_status.url:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅地址未改变"
-                subprocess.call([shell], shell=True)
-            else:
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
-                subprocess.call([shell], shell=True)
-                self.update_addr_start.start()
+            # shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
+            # subprocess.call([shell], shell=True)
+            self.update_addr_start.start()
 
-    def update_subs(self):
+    def update_subs(self, flag):
         """
         手动更新订阅
         :return:
         """
         self.update_subs_start.v2rayL = self.v2rayL
         self.update_subs_start.subs_child_ui = None
-        shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅......"
-        subprocess.call([shell], shell=True)
+        if flag:
+            shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅......"
+            subprocess.call([shell], shell=True)
         self.update_subs_start.start()
 
     def get_conf_from_uri(self):
@@ -328,18 +322,32 @@ class MyMainWindow(MainUi):
                 self.display_all_conf()
 
             elif tp == "addr":
-                shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 更新订阅地址成功"
-                subprocess.call([shell], shell=True)
-                qInfo("{}@$ff$@Subscription address change to {}".format(self.v2rayL.current_status.log, ret))
+                # shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 更新订阅地址成功"
+                # subprocess.call([shell], shell=True)
+                qInfo("{}@$ff$@Add a new subscription address: {}".format(self.v2rayL.current_status.log, ret))
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
+                self.show_subs_dialog()
+                self.subs_add_child_ui.lineEdit.setText("")
+                self.subs_add_child_ui.textEdit.setPlainText("")
+                self.add_subs_ui.hide()
+                self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
 
             elif tp == "update":
                 shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 订阅更新完成"
                 subprocess.call([shell], shell=True)
-                qInfo("{}@$ff$@Successfully updated subscription.".format(self.v2rayL.current_status.log))
+                if not ret[1]:
+                    qInfo("{}@$ff$@Successfully updated subscription.".format(self.v2rayL.current_status.log))
+                else:
+                    retinfo = ""
+                    for i in ret[1]:
+                        retinfo += "\n{}-{}-{}".format(i[0][0], i[0][1], i[1])
+                    qInfo("{}@$ff$@{}".format(self.v2rayL.current_status.log, retinfo).encode())
+                    # print(retinfo)
                 self.v2rayL = V2rayL()
+                # print(123)
                 self.display_all_conf()
+                self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
 
             elif tp == "ping":
                 if isinstance(ret, int):
@@ -380,6 +388,7 @@ class MyMainWindow(MainUi):
                     ret = "Failed to resolve subscription information, please confirm the link is correct"
                 else:
                     pass
+
                 qInfo("{}@$ff$@Failed to get subscriptions: {}.".format(self.v2rayL.current_status.log, ret))
 
             elif tp == "conn":
@@ -686,6 +695,27 @@ class MyMainWindow(MainUi):
     #     if self.v2rayL.current_status.log:
     #         with open("/etc/v2rayL/v2rayL_op.log", "a+") as f:
     #             f.write(' %s - %s: %s\n' % (datetime.datetime.now(), "Info", text))
+    def show_subs_dialog(self):
+        """
+        显示订阅设置窗口
+        :return:
+        """
+        subs_urls = self.v2rayL.current_status.url
+        #print(subs_urls)
+        self.subs_child_ui.tableWidget.setRowCount(len(subs_urls))
+        i = 1
+        # print(1111)
+        for url in subs_urls:
+            self.subs_child_ui.add_item((i, url[0], url[1], self.del_subs))
+            i += 1
+        self.subs_ui.show()
+
+    def show_add_subs_dialog(self):
+        """
+        显示添加订阅窗口
+        :return:
+        """
+        self.add_subs_ui.show()
 
     def auto_on(self):
         """
@@ -698,6 +728,37 @@ class MyMainWindow(MainUi):
         else:
             self.v2rayL.auto_on(True)
             qInfo("{}@$ff$@Automatic connection when booting is enabled.".format(self.v2rayL.current_status.log))
+
+    def del_subs(self, row):
+        choice = QMessageBox.question(self, "删除订阅", "删除订阅地址，对应的配置也将删除，是否继续？",
+                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if choice == QMessageBox.Yes:
+            remark = self.subs_child_ui.tableWidget.item(row, 1).text()
+            url = self.subs_child_ui.tableWidget.item(row, 2).text()
+            for i in self.v2rayL.current_status.url:
+                if i[0] == remark and i[1][:57] == url:
+                    self.v2rayL.current_status.url.remove(i)
+                    break
+
+            with open("/etc/v2rayL/ncurrent", "wb") as f:
+                pickle.dump(self.v2rayL.current_status, f)
+            self.show_subs_dialog()
+            if self.v2rayL.current_status.url:
+                self.update_subs(False)
+            else:
+                # 如果连接对象为删除的订阅地址中的配置，断开连接
+                if self.v2rayL.current_status.current in self.v2rayL.subs.saved_conf["subs"]:
+                    self.disconn_start.v2rayL = self.v2rayL
+                    self.disconn_start.tableView = self.first_ui.tableWidget
+                    self.disconn_start.start()
+
+                self.v2rayL.subs.saved_conf["subs"] = {}
+                with open("/etc/v2rayL/ndata", "wb") as jf:
+                    # print(self.v2rayL.subs.saved_conf)
+                    pickle.dump(self.v2rayL.subs.saved_conf, jf)
+                self.v2rayL = V2rayL()
+                self.display_all_conf()
+                self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
 
 
 if __name__ == "__main__":
