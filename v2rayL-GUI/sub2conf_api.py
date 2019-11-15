@@ -6,7 +6,7 @@ import base64
 import json
 import pickle
 import requests
-import ast
+# import ast
 import copy
 import urllib.parse as parse
 from config import conf_template as tpl
@@ -50,7 +50,7 @@ class Sub2Conf(object):
         :return:
         """
         if prot == "vmess":
-            ret = ast.literal_eval(parse.unquote(base64.b64decode(b64str).decode()))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()).replace("\'", "\""))
             region = ret['ps']
 
         elif prot == "shadowsocks":
@@ -59,14 +59,15 @@ class Sub2Conf(object):
             if len(cf) == 1:
                 tmp = parse.unquote(base64.b64decode(cf[0]).decode())
             else:
-                tmp = parse.unquote(base64.b64decode(cf[0]).decode()) + "@" + cf[1]
+                tmp = parse.unquote(base64.b64decode(cf[0]).decode() + "@" + cf[1])
+                print(tmp)
             ret = {
                 "method": tmp.split(":")[0],
                 "port": tmp.split(":")[2],
                 "password": tmp.split(":")[1].split("@")[0],
                 "add": tmp.split(":")[1].split("@")[1],
             }
-            region = string[1]
+            region = parse.unquote(string[1])
 
         ret["prot"] = prot
         if tp == 0:

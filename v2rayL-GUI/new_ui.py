@@ -255,7 +255,6 @@ class MainUi(QMainWindow):
                 border-bottom:1px solid white;
                 font-size:18px;
                 font-weight:700;
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             }
             QPushButton#left_button:hover{border-left:4px solid red;font-weight:700;}
             QWidget#left_widget{
@@ -283,7 +282,6 @@ class MainUi(QMainWindow):
                 border:none;
                 font-size:16px;
                 font-weight:700;
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             }
         ''')
 
@@ -435,7 +433,7 @@ class Ui_Setting1_Form(object):
         Form.resize(796, 489)
         self.pushButton_3 = QPushButton(Form)
         self.pushButton_3.setGeometry(QRect(650, 350, 111, 31))
-        self.pushButton_3.setStyleSheet("#pushButton_3{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        self.pushButton_3.setStyleSheet("#pushButton_3{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; }\n"
                                         "#pushButton_3:hover{ background: #5599FF;}")
         self.pushButton_3.setObjectName("pushButton_3")
         self.lineEdit = QLineEdit(Form)
@@ -448,7 +446,7 @@ class Ui_Setting1_Form(object):
         self.lineEdit.setFocusPolicy(Qt.NoFocus)
         self.label = QLabel(Form)
         self.label.setGeometry(QRect(40, 320, 101, 17))
-        self.label.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label.setStyleSheet("font: 13pt;")
         self.label.setObjectName("label")
         self.label_2 = QLabel(Form)
         self.label_2.setGeometry(QRect(340, 20, 51, 31))
@@ -461,7 +459,7 @@ class Ui_Setting1_Form(object):
         self.label_3.setObjectName("label_3")
         self.label_4 = QLabel(Form)
         self.label_4.setGeometry(QRect(40, 90, 101, 17))
-        self.label_4.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label_4.setStyleSheet("font: 13pt;")
         self.label_4.setObjectName("label_4")
         self.lineEdit_2 = QLineEdit(Form)
         self.lineEdit_2.setGeometry(QRect(40, 120, 431, 25))
@@ -472,17 +470,17 @@ class Ui_Setting1_Form(object):
         self.lineEdit_2.setPlaceholderText("以vmess://或ss://开头，以英文;分隔多条，回车确认")
         self.label_5 = QLabel(Form)
         self.label_5.setGeometry(QRect(570, 90, 131, 21))
-        self.label_5.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label_5.setStyleSheet("font: 13pt;")
         self.label_5.setObjectName("label_5")
         self.pushButton = QPushButton(Form)
         self.pushButton.setGeometry(QRect(570, 120, 171, 31))
-        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none;  color: white; font-size: 13px; }\n"
                                       "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
 
         self.pushButton_2 = QPushButton(Form)
         self.pushButton_2.setGeometry(QRect(570, 184, 171, 31))
-        self.pushButton_2.setStyleSheet("#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        self.pushButton_2.setStyleSheet("#pushButton_2{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none;  color: white; font-size: 13px; }\n"
                                         "#pushButton_2:hover{ background: #5599FF;}")
         self.pushButton_2.setObjectName("pushButton_2")
         self.label_7 = QLabel(Form)
@@ -492,7 +490,7 @@ class Ui_Setting1_Form(object):
         self.label_7.setObjectName("label_7")
         self.label_8 = QLabel(Form)
         self.label_8.setGeometry(QRect(40, 415, 201, 17))
-        self.label_8.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label_8.setStyleSheet("font: 13pt;")
         self.label_8.setObjectName("label_8")
         self.line = QFrame(Form)
         self.line.setGeometry(QRect(40, 140, 441, 16))
@@ -516,14 +514,14 @@ class Ui_Setting1_Form(object):
         self.pushButton_vmess = QPushButton(Form)
         self.pushButton_vmess.setGeometry(QRect(40, 184, 171, 31))
         self.pushButton_vmess.setStyleSheet(
-            "#pushButton_vmess{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton_vmess{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; }\n"
             "#pushButton_vmess:hover{ background: #5599FF;}")
         self.pushButton_vmess.setObjectName("pushButton_vmess")
 
         self.pushButton_ss = QPushButton(Form)
         self.pushButton_ss.setGeometry(QRect(250, 184, 171, 31))
         self.pushButton_ss.setStyleSheet(
-            "#pushButton_ss{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton_ss{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; }\n"
             "#pushButton_ss:hover{ background: #5599FF;}")
         self.pushButton_ss.setObjectName("pushButton_ss")
 
@@ -557,12 +555,12 @@ class Ui_SystemSettings(object):
                                  "color:rgb(136, 138, 133);")
         self.label.setObjectName("label")
         self.label_2 = QLabel(SystemSettings)
-        self.label_2.setGeometry(QRect(60, 130, 67, 17))
-        self.label_2.setStyleSheet("font: 14pt \"Purisa\";")
+        self.label_2.setGeometry(QRect(60, 120, 67, 35))
+        self.label_2.setStyleSheet("font: 14pt;")
         self.label_2.setObjectName("label_2")
         self.label_3 = QLabel(SystemSettings)
         self.label_3.setGeometry(QRect(450, 130, 67, 17))
-        self.label_3.setStyleSheet("font: 14pt \"Purisa\";")
+        self.label_3.setStyleSheet("font: 14pt;")
         self.label_3.setObjectName("label_3")
         self.label_4 = QLabel(SystemSettings)
         self.label_4.setGeometry(QRect(310, 230, 101, 31))
@@ -571,24 +569,24 @@ class Ui_SystemSettings(object):
         self.label_4.setObjectName("label_4")
         self.label_5 = QLabel(SystemSettings)
         self.label_5.setGeometry(QRect(60, 320, 101, 21))
-        self.label_5.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label_5.setStyleSheet("font: 13pt;")
         self.label_5.setObjectName("label_5")
         self.version_label = QLabel(SystemSettings)
         self.version_label.setGeometry(QRect(160, 320, 67, 17))
-        self.version_label.setStyleSheet("font: 13pt \"Purisa\";")
+        self.version_label.setStyleSheet("font: 13pt;")
         self.version_label.setObjectName("version_label")
         self.checkupdateButton = QPushButton(SystemSettings)
         self.checkupdateButton.setGeometry(QRect(290, 314, 151, 31))
-        self.checkupdateButton.setStyleSheet("#checkupdateButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        self.checkupdateButton.setStyleSheet("#checkupdateButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none;  color: white; font-size: 13px; }\n"
                                              "#checkupdateButton:hover{ background: #5599FF;}")
         self.checkupdateButton.setObjectName("checkupdateButton")
         self.label_7 = QLabel(SystemSettings)
         self.label_7.setGeometry(QRect(60, 380, 231, 21))
-        self.label_7.setStyleSheet("font: 13pt \"Purisa\";")
+        self.label_7.setStyleSheet("font: 13pt;")
         self.label_7.setObjectName("label_7")
         self.label_6 = QLabel(SystemSettings)
         self.label_6.setGeometry(QRect(60, 170, 500, 17))
-        self.label_6.setStyleSheet("font: 10pt \"Purisa\";\n"
+        self.label_6.setStyleSheet("font: 10pt;\n"
                                     "color: rgb(186, 189, 182);")
         self.label_6.setObjectName("label_6")
         self.label_8 = QLabel(SystemSettings)
@@ -658,7 +656,7 @@ class Ui_HelpUi(object):
         self.label_3.setText(_translate("HelpUi", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
         "p, li { white-space: pre-wrap; }\n"
-        "</style></head><body style=\" font-family:\'Ubuntu\'; font-size:11pt; font-weight:400; font-style:normal;\">\n"
+        "</style></head><body style=\"; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.1</span></p>\n"
@@ -694,35 +692,35 @@ class Ui_FirstPage(object):
         # self.tableWidget.setRowCount(12)
         self.label = QLabel(Form)
         self.label.setGeometry(QRect(130, 30, 41, 21))
-        self.label.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
+        self.label.setStyleSheet('font: 75 14pt;font-weight:bold;')
         self.label.setObjectName("label")
         self.label_2 = QLabel(Form)
         self.label_2.setGeometry(QRect(335, 30, 41, 21))
-        self.label_2.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
+        self.label_2.setStyleSheet('font: 75 14pt;font-weight:bold;')
         self.label_2.setObjectName("label_2")
         self.label_3 = QLabel(Form)
         self.label_3.setGeometry(QRect(490, 30, 41, 21))
-        self.label_3.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
+        self.label_3.setStyleSheet('font: 75 14pt;font-weight:bold;')
         self.label_3.setObjectName("label_3")
         self.label_4 = QLabel(Form)
         self.label_4.setGeometry(QRect(15, 30, 41, 21))
-        self.label_4.setStyleSheet('font: 75 14pt "宋体";font-weight:bold;')
+        self.label_4.setStyleSheet('font: 75 14pt;font-weight:bold;')
         self.label_4.setObjectName("label_4")
         self.pushButton = QPushButton(Form)
         self.pushButton.setGeometry(QRect(200, 400, 111, 31))
         self.pushButton.setStyleSheet(
-            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none;  color: white; font-size: 13px; }\n"
             "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
         self.pushButton_1 = QPushButton(Form)
         self.pushButton_1.setGeometry(QRect(360, 400, 130, 31))
         self.pushButton_1.setStyleSheet(
-            "#pushButton_1{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+            "#pushButton_1{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; }\n"
             "#pushButton_1:hover{ background: #5599FF;}")
         self.pushButton_1.setObjectName("pushButton_1")
         self.time = QLabel(Form)
         self.time.setGeometry(QRect(510, 400, 160, 31))
-        self.time.setStyleSheet('font: 75 11pt "宋体";font-weight:bold;')
+        self.time.setStyleSheet('font: 75 11pt;font-weight:bold;')
         self.time.setObjectName("time")
 
         self.tableWidget.setShowGrid(False)
@@ -766,6 +764,8 @@ class Ui_FirstPage(object):
         self.tableWidget.setItem(args[0]-1, 2, item)
         item = QTableWidgetItem(args[3])
         self.tableWidget.setItem(args[0]-1, 3, item)
+        item = QTableWidgetItem("")
+        self.tableWidget.setItem(args[0] - 1, 4, item)
         label_1 = QLabel()
         if args[4]:
             switchBtn = SwitchBtn(label_1, True)
@@ -774,6 +774,8 @@ class Ui_FirstPage(object):
         switchBtn.setGeometry(20, 5, 60, 30)
         switchBtn.checkedChanged.connect(lambda: args[5](args[0]-1, not switchBtn.checked))
         self.tableWidget.setCellWidget(args[0]-1, 4, label_1)
+        item = QTableWidgetItem("")
+        self.tableWidget.setItem(args[0] - 1, 5, item)
         button1 = QPushButton("删除")
         button1.setObjectName("delbt")
         button1.setStyleSheet('''
@@ -781,7 +783,6 @@ class Ui_FirstPage(object):
             border-radius: 15px; 
             background: red; 
             outline: none; 
-            font-family: Microsoft YaHei; 
             color: white; 
             font-size: 13px; 
             margin:5px;
@@ -790,6 +791,8 @@ class Ui_FirstPage(object):
         ''')
         button1.clicked.connect(lambda: args[6](args[0]-1))
         self.tableWidget.setCellWidget(args[0]-1, 5, button1)
+        item = QTableWidgetItem("")
+        self.tableWidget.setItem(args[0] - 1, 6, item)
         button2 = QPushButton("分享")
         button2.setObjectName("delbt")
         button2.setStyleSheet('''
@@ -797,7 +800,6 @@ class Ui_FirstPage(object):
             border-radius: 15px; 
             background: #1E90FF; 
             outline: none; 
-            font-family: Microsoft YaHei; 
             color: white; 
             font-size: 13px; 
             margin:5px;
@@ -901,7 +903,7 @@ class Ui_Add_Ss_Dialog(object):
         self.comboBox.addItem("")
         self.pushButton = QPushButton(Dialog)
         self.pushButton.setGeometry(QRect(80, 280, 151, 31))
-        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; } \n"
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; } \n"
 "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
         self.line = QFrame(Dialog)
@@ -1083,7 +1085,7 @@ class Ui_Add_Vmess_Dialog(object):
         self.line_7.setObjectName("line_7")
         self.pushButton = QPushButton(Dialog)
         self.pushButton.setGeometry(QRect(160, 475, 151, 31))
-        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 13px; }\n"
+        self.pushButton.setStyleSheet("#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 13px; }\n"
 "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
 
@@ -1141,7 +1143,7 @@ class Ui_Subs_Dialog(object):
         self.pushButton = QPushButton(dialog)
         self.pushButton.setGeometry(QRect(240, 290, 191, 41))
         self.pushButton.setStyleSheet(
-            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 18px; }\n"
+            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 18px; }\n"
             "#pushButton:hover{ background: #5599FF;}")
         self.pushButton.setObjectName("pushButton")
 
@@ -1209,7 +1211,6 @@ class Ui_Subs_Dialog(object):
                        border-radius: 15px; 
                        background: red; 
                        outline: none; 
-                       font-family: Microsoft YaHei; 
                        color: white; 
                        font-size: 13px; 
                        margin:5px;
@@ -1242,7 +1243,7 @@ class Ui_Add_Subs_Form(object):
         self.pushButton.setGeometry(QRect(110, 240, 90, 30))
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setStyleSheet(
-            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; font-family: Microsoft YaHei; color: white; font-size: 18px; }\n"
+            "#pushButton{border-width: 0px; border-radius: 15px; background: #1E90FF; outline: none; color: white; font-size: 18px; }\n"
             "#pushButton:hover{ background: #5599FF;}")
 
         self.retranslateUi(dialog)
