@@ -50,7 +50,7 @@ class Sub2Conf(object):
         :return:
         """
         if prot == "vmess":
-            ret = ast.literal_eval(parse.unquote(base64.b64decode(b64str).decode()))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()).replace("\'", "\""))
             region = ret['ps']
 
         elif prot == "shadowsocks":
