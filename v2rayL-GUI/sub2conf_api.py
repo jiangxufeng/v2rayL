@@ -6,8 +6,10 @@ import base64
 import json
 import pickle
 import requests
+import ast
+import copy
 import urllib.parse as parse
-from config import conf_template as conf
+from config import conf_template as tpl
 
 
 class Sub2Conf(object):
@@ -40,8 +42,15 @@ class Sub2Conf(object):
         '''
 
     def b642conf(self, prot, tp, b64str):
+        """
+        base64转化为dict类型配置
+        :param prot:
+        :param tp:
+        :param b64str:
+        :return:
+        """
         if prot == "vmess":
-            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()).replace("\'", "\""))
             region = ret['ps']
 
         elif prot == "shadowsocks":
@@ -65,8 +74,19 @@ class Sub2Conf(object):
                 region = region + "_local"
         self.saved_conf[["local", "subs"][tp]][region] = ret
 
-    def setconf(self, region):
+    def setconf(self, region, http, socks):
+        """
+        生成配置
+        :param region: 当前VPN别名
+        :param http: http端口
+        :param socks: socks端口
+        :return:
+        """
         use_conf = self.conf[region]
+        conf = copy.deepcopy(tpl)
+        conf["inbounds"][0]["port"] = socks
+        conf["inbounds"][1]["port"] = http
+
         if use_conf['prot'] == "vmess":
             conf['outbounds'][0]["protocol"] = "vmess"
             conf['outbounds'][0]["settings"]["vnext"] = list()
@@ -89,7 +109,7 @@ class Sub2Conf(object):
                     "security": "tls" if use_conf["tls"] else "",
                     "tlssettings": {
                         "allowInsecure": True,
-                        "serverName": use_conf["tls"]
+                        "serverName": use_conf["host"] if use_conf["tls"] else ""
                     },
                     "wssettings": {
                         "connectionReuse": True,
@@ -115,8 +135,48 @@ class Sub2Conf(object):
                         "uplinkCapacity": 12,
                         "writeBufferSize": 1
                     },
-                    "security": ""
+                    "security": "tls" if use_conf["tls"] else ""
                 }
+            # tcp
+            elif use_conf["net"] == "tcp":
+                conf['outbounds'][0]["streamSettings"] = {
+                    "network": use_conf["net"],
+                    "security": "tls" if use_conf["tls"] else "",
+                    "tcpsettings": {
+                        "connectionReuse": True,
+                        "header": {
+                            "request": {
+                                "version": "1.1",
+                                "method": "GET",
+                                "path": [use_conf["path"]],
+                                "headers": {
+                                    "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"],
+                                    "Accept-Encoding": ["gzip, deflate"],
+                                    "Connection": ["keep-alive"],
+                                    "Pragma": "no-cache",
+                                    "Host": [use_conf["host"]]
+                                }
+                            },
+                            "type": use_conf["type"]
+                        }
+                    } if use_conf["type"] != "none" else {}
+                }
+            # QUIC
+            # elif use_conf["net"] == "quic":
+            #     conf['outbounds'][0]["streamSettings"] = {
+            #         "network": use_conf["net"],
+            #         "security": "tls" if use_conf["tls"] else "none",
+            #         "tlssettings": {
+            #             "allowInsecure": True,
+            #             "serverName": use_conf["host"]
+            #         },
+            #         "quicsettings": {
+            #             "headers": {
+            #                 "type": use_conf['type']
+            #             },
+            #             "key":
+            #         }
+            #     }
 
         elif use_conf['prot'] == "shadowsocks":
             conf['outbounds'][0]["protocol"] = "shadowsocks"
@@ -136,6 +196,11 @@ class Sub2Conf(object):
             f.write(json.dumps(conf, indent=4))
 
     def delconf(self, region):
+        """
+        删除一个配置
+        :param region: 配置名
+        :return:
+        """
         self.conf.pop(region)
         try:
             self.saved_conf['local'].pop(region)
@@ -147,25 +212,47 @@ class Sub2Conf(object):
         with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
-    def update(self):
+    def update(self, flag):
         """
         更新订阅
+        :param flag: True, 整体更新, False, 添加
         """
-        try:
-            ret = requests.get(self.subs_url)
-            if ret.status_code != 200:
-                raise MyException("无法获取订阅信息，订阅站点访问失败")
-            all_subs = base64.b64decode(ret.text + "==").decode().strip()
-            if "vmess" not in all_subs or "ss" not in all_subs:
-                raise MyException("解析订阅信息失败，请确认链接正确")
-            all_subs = all_subs.split("\n")
-        except:
-            raise MyException("解析订阅信息失败")
+        error_subs = []
+        if flag:
+            all_subs = []
+            for url in self.subs_url:
+                # print(url)
+                try:
+                    ret = requests.get(url[1], timeout=15)
+                    if ret.status_code != 200:
+                        error_subs.append([url, "无法获取订阅信息，订阅站点访问失败"])
+                        raise MyException("无法获取订阅信息，订阅站点访问失败")
+                    subs = base64.b64decode(ret.text + "==").decode().strip()
+                    all_subs.extend(subs.split("\n"))
+                except:
+                    pass
+                    # raise MyException(e.args[0])
+                    # error_subs.append(url)
 
-        for sub in all_subs:
-            self.origin.append(sub.split("://"))
+            for sub in all_subs:
+                self.origin.append(sub.split("://"))
 
-        self.saved_conf["subs"] = {}
+            self.saved_conf["subs"] = {}
+
+        else:
+            try:
+                ret = requests.get(self.subs_url, timeout=15)
+                if ret.status_code != 200:
+                    raise MyException("无法获取订阅信息，订阅站点访问失败")
+                all_subs = base64.b64decode(ret.text + "==").decode().strip()
+                if "vmess" not in all_subs or "ss" not in all_subs:
+                    raise MyException("解析订阅信息失败，请确认链接正确")
+                all_subs = all_subs.split("\n")
+            except Exception as e:
+                raise MyException(e.args[0])
+
+            for sub in all_subs:
+                self.origin.append(sub.split("://"))
 
         for ori in self.origin:
             if ori[0] == "vmess":
@@ -178,6 +265,7 @@ class Sub2Conf(object):
         with open("/etc/v2rayL/ndata", "wb") as jf:
             pickle.dump(self.saved_conf, jf)
 
+        return error_subs
     def add_conf_by_uri(self):
         """
         通过分享的连接添加配置

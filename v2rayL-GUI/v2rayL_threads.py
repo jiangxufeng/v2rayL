@@ -2,7 +2,7 @@
 # Author: Suummmmer
 # Date: 2019-08-13
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, qCritical
 from sub2conf_api import MyException
 import subprocess
 import requests
@@ -29,7 +29,7 @@ class ConnectThread(QThread):
             self.sinOut.emit(("conn", "@@Fail@@", "未选中配置无法连接，请导入配置后再次连接", None))
         else:
             try:
-                self.v2rayL.connect(region)
+                self.v2rayL.connect(region, False)
             except MyException as e:
                 self.sinOut.emit(("conn", "@@Fail@@", e.args[0], None))
             else:
@@ -76,24 +76,26 @@ class UpdateSubsThread(QThread):
     def run(self):
         # msg = QMessageBox.information()
         if self.subs_child_ui:
-            url = self.subs_child_ui.lineEdit.text()
+            remark = self.subs_child_ui.lineEdit.text().strip()
+            url = self.subs_child_ui.textEdit.toPlainText().strip()
             try:
-                self.v2rayL.update(url)
+                self.v2rayL.update(remark, url)
             except MyException as e:
                 self.sinOut.emit(("addr", "@@Fail@@", e.args[0], None))
             else:
-                self.sinOut.emit(("addr", "@@OK@@", "订阅地址更新成功！", None))
+                self.sinOut.emit(("addr", "@@OK@@", url, None))
         else:
-            url = self.v2rayL.url
+            url = self.v2rayL.current_status.url
+            # print(url)
             if not url:
                 self.sinOut.emit(("update", "@@Fail@@", "不存在订阅地址，无法更新", None))
             else:
                 try:
-                    self.v2rayL.update(url)
+                    error = self.v2rayL.update(None, url)
                 except MyException as e:
                     self.sinOut.emit(("update", "@@Fail@@", e.args[0], None))
                 else:
-                    self.sinOut.emit(("update", "@@OK@@", "订阅更新成功！", None))
+                    self.sinOut.emit(("update", "@@OK@@", (url, error), None))
 
 
 class PingThread(QThread):
@@ -176,10 +178,36 @@ class VersionUpdateThread(QThread):
                 with open("/etc/v2rayL/update.sh", 'w') as f:
                     f.write(req.text)
 
-                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/update.sh"], shell=True)
+                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/upda.sh"], shell=True)
 
                 self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
 
         except Exception:
             self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
 
+
+class RunCmdThread(QThread):
+    """
+    第一次启动时运行cmd线程
+    """
+    sinOut = pyqtSignal(tuple)
+
+    def __init__(self, parent=None):
+        super(RunCmdThread, self).__init__(parent)
+
+    def __del__(self):
+        # 线程状态改变与线程终止
+        self.wait()
+
+    def run(self):
+        # print("start")
+        try:
+            output = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
+            if "Active: active" in output:
+                subprocess.call(["sudo systemctl restart v2rayL.service"], shell=True)
+            else:
+                subprocess.call(["sudo systemctl start v2rayL.service"], shell=True)
+            # subprocess.call(["sudo systemctl stop v2rayL.service"], shell=True)
+            # print("end")
+        except Exception as e:
+            qCritical(e)

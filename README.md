@@ -20,6 +20,7 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ra
 - 设置自动更新订阅、更换地址
 - 支持协议：vmess、shadowsocks
 - 通过`vmess://`、`ss://`分享链接添加配置，通过二维码添加配置
+- 手动添加配置，修改本地监听端口
 - 导出配置、生成配置分享链接、生成分享二维码
 - 最小化至托盘、测试延时、检查更新
 - ......
@@ -60,9 +61,9 @@ bash <(curl -s -L http://dl.thinker.ink/uninstall.sh)
 
 ![首页](http://cloud.thinker.ink/download/a043a08860f239f8d0cbeb2dc2a5b6d5.png)
 
-![setting1](http://cloud.thinker.ink/download/c32e16f3b205b25c615b86a7beb8eb8d.png)
+![setting1](http://cloud.thinker.ink/images/364231980b07e8881164f61cd220d0bb.png)
 
-![setting2](http://cloud.thinker.ink/images/cc18605727deaf878cb0a2fa07ec230f.png)
+![setting2](http://cloud.thinker.ink/images/8835526765d479143879c08fe1ecb8a4.png)
 
 # 感谢
 
