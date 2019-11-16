@@ -5,8 +5,12 @@
 conf_template = {
   "dns": {
       "servers": [
-          "1.1.1.1"
-      ]
+          "1.1.1.1",
+          "8.8.8.8",
+          "8.8.4.4",
+          "localhost"
+      ],
+
   },
   "inbounds": [{
         "port": 1080,

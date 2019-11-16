@@ -136,13 +136,21 @@ class Sub2Conf(object):
                         "uplinkCapacity": 12,
                         "writeBufferSize": 1
                     },
-                    "security": "tls" if use_conf["tls"] else ""
+                    "security": "tls" if use_conf["tls"] else "",
+                    "tlssettings": {
+                        "allowInsecure": True,
+                        "serverName": use_conf["host"] if use_conf["tls"] else ""
+                    }
                 }
             # tcp
             elif use_conf["net"] == "tcp":
                 conf['outbounds'][0]["streamSettings"] = {
                     "network": use_conf["net"],
                     "security": "tls" if use_conf["tls"] else "",
+                    "tlssettings": {
+                        "allowInsecure": True,
+                        "serverName": use_conf["host"] if use_conf["tls"] else ""
+                    },
                     "tcpsettings": {
                         "connectionReuse": True,
                         "header": {

@@ -178,7 +178,7 @@ class VersionUpdateThread(QThread):
                 with open("/etc/v2rayL/update.sh", 'w') as f:
                     f.write(req.text)
 
-                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/upda.sh"], shell=True)
+                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/update.sh"], shell=True)
 
                 self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
 

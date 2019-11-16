@@ -75,5 +75,3 @@ def qt_message_handler(mode, context, message):
     if en == "True":
         with open("/etc/v2rayL/v2rayL_op.log", "a+") as f:
             f.write(' %s - %s: %s\n' % (datetime.datetime.now(), mode, info))
-
-# https://sub.qianglie.xyz/subscribe.php?sid=5582&token=g6e8VdU6C40H

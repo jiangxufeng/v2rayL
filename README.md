@@ -30,26 +30,25 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ra
 
 # 使用
 
+## 使用前请注意
+使用脚本安装时下载的程序实在`ubuntu 18.04` + `Python3.6`的环境下打包的，因此在Python版本不一致的环境中可能会出现版本不兼容的问题
+
+解决方法：
+
+在自己的电脑上重新打包程序，具体方法如下（参考）
+1. 运行`git clone https://github.com/jiangxufeng/v2rayL.git`
+2. 进入项目文件夹，然后运行`pip install -r requirements.txt`
+3. 运行`cd v2rayL-GUI && pyinstaller -F v2rayLui.py -p config.py -p sub2conf_api.py -p v2rayL_api.py -p v2rayL_threads.py -p utils.py -i images/logo.ico -n v2rayLui`
+4. 打包后运行`mv dist/v2rayLui /usr/bin/v2rayL/v2rayLui`
+
 ## 安装
-方法一：
 ```
 bash <(curl -s -L http://dl.thinker.ink/install.sh)
 ```
 
-方法二：
-```
-在release中下载最新的install.sh，然后运行 ./install.sh
-```
-
 ## 更新
-方法一：
 ``` bash
 bash <(curl -s -L http://dl.thinker.ink/update.sh)
-```
-
-方法二：
-``` bash
-在release中下载最新的update.sh，然后运行 ./update.sh
 ```
 
 ## 卸载
@@ -61,7 +60,7 @@ bash <(curl -s -L http://dl.thinker.ink/uninstall.sh)
 
 ![首页](http://cloud.thinker.ink/download/a043a08860f239f8d0cbeb2dc2a5b6d5.png)
 
-![setting1](http://cloud.thinker.ink/images/364231980b07e8881164f61cd220d0bb.png)
+![setting1](http://cloud.thinker.ink/images/617ce660cc4a2a22bd275d73d0d7c616.png)
 
 ![setting2](http://cloud.thinker.ink/images/8835526765d479143879c08fe1ecb8a4.png)
 

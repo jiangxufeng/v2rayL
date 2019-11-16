@@ -627,7 +627,7 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.1.1"))
+        self.version_label.setText(_translate("SystemSettings", "v2.1.2"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
         self.label_7.setText(_translate("SystemSettings", "自动检查更新"))
         self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10080，每次修改都将更新。**"))
@@ -659,7 +659,7 @@ class Ui_HelpUi(object):
         "</style></head><body style=\"; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
-        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.1</span></p>\n"
+        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.2</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">说明</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p></body></html>"))
@@ -720,7 +720,7 @@ class Ui_FirstPage(object):
         self.pushButton_1.setObjectName("pushButton_1")
         self.time = QLabel(Form)
         self.time.setGeometry(QRect(510, 400, 160, 31))
-        self.time.setStyleSheet('font: 75 11pt;font-weight:bold;')
+        self.time.setStyleSheet('font: 55 11pt;font-weight:500;')
         self.time.setObjectName("time")
 
         self.tableWidget.setShowGrid(False)
