@@ -37,7 +37,7 @@ class MyMainWindow(MainUi):
         super(MyMainWindow, self).__init__(parent)
 
         self.init_ui()
-        self.version = "2.1.2"
+        self.version = "2.1.3"
 
         # 获取api操作
         self.v2rayL = V2rayL()
@@ -96,6 +96,20 @@ class MyMainWindow(MainUi):
             self.a4.setChecked(True)
             self.a3.setChecked(False)
 
+        # 全局代理模式
+        if self.v2rayL.current_status.proxy == 1:
+            self.a5.setChecked(True)
+            self.a6.setChecked(False)
+            self.a7.setChecked(False)
+        elif self.v2rayL.current_status.proxy == 2:
+            self.a5.setChecked(False)
+            self.a6.setChecked(True)
+            self.a7.setChecked(False)
+        else:
+            self.a5.setChecked(False)
+            self.a6.setChecked(False)
+            self.a7.setChecked(True)
+
         # 填充当前订阅地址
        #  print(self.v2rayL.current_status.url)
         self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
@@ -139,8 +153,10 @@ class MyMainWindow(MainUi):
         self.a1.triggered.connect(self.show)
         self.a3.triggered.connect(self.enable_log)
         self.a4.triggered.connect(self.disable_log)
+        self.a5.triggered.connect(lambda: self.proxy_handler(1))
+        self.a6.triggered.connect(lambda: self.proxy_handler(2))
+        self.a7.triggered.connect(lambda: self.proxy_handler(0))
 
-         # print("hahh")
         # 设置最小化到托盘
         SystemTray(self, app)
 
@@ -191,6 +207,7 @@ class MyMainWindow(MainUi):
             # shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 正在更新订阅地址......"
             # subprocess.call([shell], shell=True)
             self.update_addr_start.start()
+            self.add_subs_ui.hide()
 
     def update_subs(self, flag):
         """
@@ -490,37 +507,6 @@ class MyMainWindow(MainUi):
         self.share_child_ui.textBrowser.setText(ret)
         self.share_ui.show()
 
-    # def output_conf_by_uri(self, region):
-    #     """
-    #     输出分享链接
-    #     :return:
-    #     """
-    #     ret = self.v2rayL.subs.conf2b64(region)
-    #     # QMessageBox.information(self, "分享链接", self.tr(ret))
-
-    # def output_conf_by_qr(self, region):
-    #     """
-    #     输出分享二维码
-    #     :return:
-    #     """
-    #     ret = self.v2rayL.subs.conf2b64(region)
-    #     # 生成二维码
-    #     url = "http://api.k780.com:88/?app=qr.get&data={}".format(ret)
-    #     try:
-    #         req = requests.get(url)
-    #         if req.status_code == 200:
-    #             qr = QPixmap()
-    #             qr.loadFromData(req.content)
-    #             self.qr_child_ui.label.setPixmap(qr)
-    #             self.qr_child_ui.label.setScaledContents(True)
-    #             self.qr_ui.show()
-    #         else:
-    #             shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，可能原因：调用API发生错误"
-    #             subprocess.call([shell], shell=True)
-    #     except:
-    #         shell = "notify-send -i /etc/v2rayL/images/logo.ico v2rayL 服务错误，请将错误在github中提交"
-    #         subprocess.call([shell], shell=True)
-
     def value_change(self, flag):
         """
         端口改变
@@ -690,11 +676,6 @@ class MyMainWindow(MainUi):
         self.a3.setChecked(False)
         self.v2rayL.logging(False)
 
-    # def output_ter_result(self, text):
-    #
-    #     if self.v2rayL.current_status.log:
-    #         with open("/etc/v2rayL/v2rayL_op.log", "a+") as f:
-    #             f.write(' %s - %s: %s\n' % (datetime.datetime.now(), "Info", text))
     def show_subs_dialog(self):
         """
         显示订阅设置窗口
@@ -759,6 +740,31 @@ class MyMainWindow(MainUi):
                 self.v2rayL = V2rayL()
                 self.display_all_conf()
                 self.config_setting_ui.lineEdit.setText(";".join([x[1] for x in self.v2rayL.current_status.url]))
+
+    def proxy_handler(self, types):
+        """
+        修改全局代理模式
+        :param types: 1:白名单 2:黑名单 0:关闭
+        :return:
+        """
+        if types == 1:
+            self.a5.setChecked(True)
+            self.a6.setChecked(False)
+            self.a7.setChecked(False)
+        elif types == 2:
+            self.a5.setChecked(False)
+            self.a6.setChecked(True)
+            self.a7.setChecked(False)
+        else:
+            self.a5.setChecked(False)
+            self.a6.setChecked(False)
+            self.a7.setChecked(True)
+
+        lt = ["off", "whiteList", "gfwList"]
+        self.v2rayL.proxy(types)
+        qInfo("{}@$ff$@Proxy mode changed to: {}".format(self.v2rayL.current_status.log, lt[types]))
+        if self.v2rayL.current_status.current != "未连接至VPN":
+            self.v2rayL.connect(self.v2rayL.current_status.current, False)
 
 
 if __name__ == "__main__":

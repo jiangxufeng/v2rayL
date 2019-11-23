@@ -3,15 +3,6 @@
 # Date: 2019-08-13
 
 conf_template = {
-  "dns": {
-      "servers": [
-          "1.1.1.1",
-          "8.8.8.8",
-          "8.8.4.4",
-          "localhost"
-      ],
-
-  },
   "inbounds": [{
         "port": 1080,
         "protocol": "socks",
@@ -46,7 +37,7 @@ conf_template = {
   },
   "outbounds": [{
           "mux": {
-              "enabled": False
+              "enabled": True
           },
           "protocol": "",
           "settings": {},
@@ -82,8 +73,9 @@ conf_template = {
           "statsInboundDownlink": True
       }
   },
+  "dns": {},
   "routing": {
-      "domainStrategy": "IPIfNonMatch",
+      "domainStrategy": "IPOnDemand",
       "rules": []
   },
   "stats": {}

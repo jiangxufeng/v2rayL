@@ -50,16 +50,16 @@ class Sub2Conf(object):
         :return:
         """
         if prot == "vmess":
-            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()).replace("\'", "\""))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str+"==").decode()).replace("\'", "\""))
             region = ret['ps']
 
         elif prot == "shadowsocks":
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
-                tmp = parse.unquote(base64.b64decode(cf[0]).decode())
+                tmp = parse.unquote(base64.b64decode(cf[0]+"==").decode())
             else:
-                tmp = parse.unquote(base64.b64decode(cf[0]).decode() + "@" + cf[1])
+                tmp = parse.unquote(base64.b64decode(cf[0]+"==").decode() + "@" + cf[1])
                 print(tmp)
             ret = {
                 "method": tmp.split(":")[0],
@@ -75,7 +75,7 @@ class Sub2Conf(object):
                 region = region + "_local"
         self.saved_conf[["local", "subs"][tp]][region] = ret
 
-    def setconf(self, region, http, socks):
+    def setconf(self, region, http, socks, proxy):
         """
         生成配置
         :param region: 当前VPN别名
@@ -88,6 +88,7 @@ class Sub2Conf(object):
         conf["inbounds"][0]["port"] = socks
         conf["inbounds"][1]["port"] = http
 
+        #  如果是vmess
         if use_conf['prot'] == "vmess":
             conf['outbounds'][0]["protocol"] = "vmess"
             conf['outbounds'][0]["settings"]["vnext"] = list()
@@ -186,7 +187,7 @@ class Sub2Conf(object):
             #             "key":
             #         }
             #     }
-
+        # 如果是ss
         elif use_conf['prot'] == "shadowsocks":
             conf['outbounds'][0]["protocol"] = "shadowsocks"
             conf['outbounds'][0]["settings"]["servers"] = list()
@@ -200,6 +201,136 @@ class Sub2Conf(object):
             conf['outbounds'][0]["streamSettings"] = {
                 "network": "tcp"
             }
+        else:
+            raise MyException("不支持的协议类型")
+
+        # 是否进行透明代理
+        if proxy:
+            # 修改入站协议
+
+            conf["inbounds"].append({
+                "tag": "transparent",
+                "port": 12345,
+                "protocol": "dokodemo-door",
+                "settings": {
+                    "network": "tcp,udp",
+                    "followRedirect": True
+                },
+                "sniffing": {
+                    "enabled": True,
+                    "destOverride": [
+                        "http",
+                        "tls"
+                    ]
+                },
+                "streamSettings": {
+                    "sockopt": {
+                        "tproxy": "tproxy"  # 透明代理使用 TPROXY 方式
+                    }
+                }
+            })
+
+            # 配置dns
+            conf['dns']["servers"] = [
+                "8.8.8.8",  # 非中国大陆域名使用 Google 的 DNS
+                "1.1.1.1",
+                "114.114.114.114",
+                {
+                    "address": "223.5.5.5",
+                    "port": 53,
+                    "domains": [
+                        "geosite:cn",
+                        "ntp.org",
+                        use_conf['host']
+                    ]
+                }
+            ]
+
+            # 每一个outbounds添加mark
+            conf['outbounds'][0]["streamSettings"]["sockopt"] = {"mark": 255}
+            conf['outbounds'][1]["settings"] = {"domainStrategy": "UseIP"}
+            conf['outbounds'][1]["streamSettings"] = dict()
+            conf['outbounds'][1]["streamSettings"]["sockopt"] = {"mark": 255}
+
+            conf['outbounds'].append({
+                "tag": "dns-out",
+                "protocol": "dns",
+                "streamSettings": {
+                    "sockopt": {
+                        "mark": 255
+                    }
+                }
+            })
+            # 配置路由
+            conf['routing']["rules"].append({
+                "type": "field",
+                "inboundTag": [
+                    "transparent"
+                ],
+                "port": 53,   # 劫持53端口UDP流量，使用V2Ray的DNS
+                "network": "udp",
+                "outboundTag": "dns-out"
+            })
+            conf['routing']['rules'].append({
+                "type": "field",
+                "inboundTag": [
+                    "transparent"
+                ],
+                "port": 123,  # 直连123端口UDP流量（NTP 协议）
+                "network": "udp",
+                "outboundTag": "direct"
+            })
+            conf["routing"]["rules"].append({
+                "type": "field",  # 设置DNS配置中的国内DNS服务器地址直连，以达到DNS分流目的
+                "ip": [
+                    "223.5.5.5",
+                    "114.114.114.114"
+                ],
+                "outboundTag": "direct"
+            })
+            conf["routing"]["rules"].append({
+                "type": "field",
+                "ip": [
+                    "8.8.8.8",  # 设置 DNS 配置中的国内 DNS 服务器地址走代理，以达到DNS分流目的
+                    "1.1.1.1"
+                ],
+                "outboundTag": "proxy"
+            })
+            conf["routing"]["rules"].append({
+                "type": "field",
+                "protocol": ["bittorrent"],  # BT流量直连
+                "outboundTag": "direct"
+            })
+
+            if proxy == 1:  # 国内网站直连：
+                conf["routing"]["rules"].append({
+                    "type": "field",
+                    "ip": [
+                       "geoip:private",
+                       "geoip:cn"
+                    ],
+                    "outboundTag": "direct"
+                })
+                conf["routing"]["rules"].append({
+                    "type": "field",
+                    "domain": [
+                        "geosite:cn"
+                    ],
+                    "outboundTag": "direct"
+                })
+            else:  # gfw
+                conf["routing"]["rules"].append({
+                    "type": "field",
+                    "domain": [
+                        "ext:h2y.dat:gfw"
+                    ],
+                    "outboundTag": "proxy"
+                })
+                conf["routing"]["rules"].append({
+                    "type": "field",
+                    "network": "tcp,udp",
+                    "outboundTag": "direct"
+                })
 
         with open("/etc/v2rayL/config.json", "w") as f:
             f.write(json.dumps(conf, indent=4))
@@ -232,7 +363,7 @@ class Sub2Conf(object):
             for url in self.subs_url:
                 # print(url)
                 try:
-                    ret = requests.get(url[1], timeout=15)
+                    ret = requests.get(url[1], timeout=30)
                     if ret.status_code != 200:
                         error_subs.append([url, "无法获取订阅信息，订阅站点访问失败"])
                         raise MyException("无法获取订阅信息，订阅站点访问失败")
@@ -250,15 +381,16 @@ class Sub2Conf(object):
 
         else:
             try:
-                ret = requests.get(self.subs_url, timeout=15)
+                print(self.subs_url)
+                ret = requests.get(self.subs_url, timeout=30)
                 if ret.status_code != 200:
                     raise MyException("无法获取订阅信息，订阅站点访问失败")
                 all_subs = base64.b64decode(ret.text + "==").decode().strip()
                 if "vmess" not in all_subs or "ss" not in all_subs:
                     raise MyException("解析订阅信息失败，请确认链接正确")
                 all_subs = all_subs.split("\n")
-            except Exception as e:
-                raise MyException(e.args[0])
+            except Exception:
+                raise MyException("无法获取订阅信息，订阅站点访问失败")
 
             for sub in all_subs:
                 self.origin.append(sub.split("://"))
@@ -275,6 +407,7 @@ class Sub2Conf(object):
             pickle.dump(self.saved_conf, jf)
 
         return error_subs
+
     def add_conf_by_uri(self):
         """
         通过分享的连接添加配置

@@ -293,7 +293,7 @@ class MainUi(QMainWindow):
 
 
 
-        self.setWindowOpacity(0.95)  # 设置窗口透明度
+        # self.setWindowOpacity(0.95)  # 设置窗口透明度
         self.setAttribute(Qt.WA_TranslucentBackground)  # 设置窗口背景透明
         self.setWindowFlag(Qt.FramelessWindowHint)  # 隐藏边框
         self.main_layout.setSpacing(0)
@@ -354,16 +354,27 @@ class MainUi(QMainWindow):
         self.subs_add_child_ui.setupUi(self.add_subs_ui)
 
         # 托盘菜单
-        self.a1 = QAction('恢复(Show)')
-        self.a2 = QAction('退出(Exit)')
-        self.logMenu = QMenu("日志(Log)")
-        self.a3 = QAction('启用(Enable)', checkable=True)
-        self.a4 = QAction('禁用(Disable)', checkable=True)
+        self.a1 = QAction('恢复')
+        self.a2 = QAction('退出')
+        self.logMenu = QMenu("日志")
+        self.a3 = QAction('启用', checkable=True)
+        self.a4 = QAction('禁用', checkable=True)
+        self.proxyMenu = QMenu("全局代理")
+        self.a5 = QAction('白名单模式', checkable=True)
+        self.a6 = QAction('黑名单模式', checkable=True)
+        self.a7 = QAction('关闭全局代理', checkable=True)
         self.logMenu.addAction(self.a3)
         self.logMenu.addAction(self.a4)
+        self.proxyMenu.addAction(self.a5)
+        self.proxyMenu.addAction(self.a6)
+        self.proxyMenu.addAction(self.a7)
         self.tpMenu = QMenu()
         self.tpMenu.addAction(self.a1)
+        self.tpMenu.addSeparator()
         self.tpMenu.addMenu(self.logMenu)
+        self.tpMenu.addSeparator()
+        self.tpMenu.addMenu(self.proxyMenu)
+        self.tpMenu.addSeparator()
         self.tpMenu.addAction(self.a2)
 
         self.current_page = self.first_widget
@@ -627,7 +638,7 @@ class Ui_SystemSettings(object):
         self.label_3.setText(_translate("SystemSettings", "Socks："))
         self.label_4.setText(_translate("SystemSettings", "版本更新"))
         self.label_5.setText(_translate("SystemSettings", "当前版本："))
-        self.version_label.setText(_translate("SystemSettings", "v2.1.2"))
+        self.version_label.setText(_translate("SystemSettings", "v2.1.3"))
         self.checkupdateButton.setText(_translate("SystemSettings", "检查更新"))
         self.label_7.setText(_translate("SystemSettings", "自动检查更新"))
         self.label_6.setText(_translate("SystemSettings", "**端口可选范围：1080-10080，每次修改都将更新。**"))
@@ -659,7 +670,7 @@ class Ui_HelpUi(object):
         "</style></head><body style=\"; font-size:11pt; font-weight:400; font-style:normal;\">\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">当前版本</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p>\n"
-        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.2</span></p>\n"
+        "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">v2.1.3</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt; font-weight:600;\">说明</span></p>\n"
         "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">——————————————————————</span></p></body></html>"))
@@ -668,8 +679,9 @@ class Ui_HelpUi(object):
         "2. 目前支持协议有：Vmess、shadowsocks\n"
         "3. 支持通过分享链接、二维码导入和分享配置,手动配置\n"
         "4. 支持修改本地监听端口，范围为1080~10080\n"
-        "5. 开发环境为Ubuntu18.04+Python3.6，其他linux系统可能不兼容\n"
-        "6. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
+        "5. 支持全局代理模式：白名单模式和gfw模式\n"
+        "6. 开发环境为Ubuntu18.04+Python3.6，其他linux系统可能不兼容\n"
+        "7. 程序可能存在未测试到的Bug，使用过程中发现Bug请在github提交"))
 
 
 class CenterDelegate(QItemDelegate):
@@ -825,7 +837,7 @@ class Ui_Share_Dialog(object):
         dialog.setObjectName("dialog")
         dialog.resize(565, 480)
         dialog.setStyleSheet("#dialog{color:#232C51;  background:white; }")
-        dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+        # dialog.setWindowOpacity(0.95)  # 设置窗口透明度
         self.label = QLabel(dialog)
         self.label.setGeometry(QRect(170, 20, 200, 200))
         self.label.setText("")
@@ -852,7 +864,7 @@ class Ui_Add_Ss_Dialog(object):
                 background:white;
             }
             """)
-        Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+       # Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
        # Dialog.setAttribute(Qt.WA_TranslucentBackground)  # 设置窗口背景透明
         self.label = QLabel(Dialog)
         self.label.setGeometry(QRect(20, 30, 111, 20))
@@ -954,7 +966,7 @@ class Ui_Add_Vmess_Dialog(object):
         Dialog.setObjectName("Dialog")
         Dialog.resize(465, 527)
         Dialog.setStyleSheet("#Dialog{color:#232C51;  background:white; }")
-        Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
+        # Dialog.setWindowOpacity(0.95)  # 设置窗口透明度
         self.label = QLabel(Dialog)
         self.label.setGeometry(QRect(30, 35, 111, 17))
         self.label.setObjectName("label")

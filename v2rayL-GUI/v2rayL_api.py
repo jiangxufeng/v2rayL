@@ -13,7 +13,7 @@ class CurrentStatus(object):
     保存当前状态
     """
     def __init__(self, current="未连接至VPN", url=set(), auto=False, check=False,
-                 http=1081, socks=1080, log=True):
+                 http=1081, socks=1080, log=True, proxy=0):
         """
         :param current: 当前连接状态
         :param url: 当前订阅地址
@@ -22,6 +22,7 @@ class CurrentStatus(object):
         :param http: http监听端口
         :param socks: socks监听端口
         :param log: 是否启用v2rayL日志
+        :param proxy: 是否启用透明代理
         """
         self.current = current
         self.url = url
@@ -30,15 +31,16 @@ class CurrentStatus(object):
         self.http = http
         self.socks = socks
         self.log = log
+        self.proxy = proxy
 
 
 class V2rayL(object):
     def __init__(self):
-
         try:
             with open("/etc/v2rayL/ncurrent", "rb") as f:
                 # self.current, self.url, self.auto, self.check, self.http, self.socks, self.log = pickle.load(f)
                 self.current_status = pickle.load(f)
+
         except:
             self.current_status = CurrentStatus()
 
@@ -91,7 +93,7 @@ class V2rayL(object):
         :return:
         """
         if not flag:
-            self.subs.setconf(region, self.current_status.http, self.current_status.socks)
+            self.subs.setconf(region, self.current_status.http, self.current_status.socks, self.current_status.proxy)
         try:
             output = subprocess.getoutput(["sudo systemctl status v2rayL.service"])
             if "Active: active" in output:
@@ -144,8 +146,8 @@ class V2rayL(object):
             # print(123)
             self.subs = Sub2Conf(subs_url=self.current_status.url)
             error_subs = self.subs.update(True)
-            for i in error_subs:
-                self.current_status.url.remove(i[0])
+            # for i in error_subs:
+            #     self.current_status.url.remove(i[0])  # 不直接移除错误的订阅地址
             with open("/etc/v2rayL/ncurrent", "wb") as jf:
                 pickle.dump(self.current_status, jf)
             return error_subs
@@ -196,20 +198,31 @@ class V2rayL(object):
                 "http": "127.0.0.1:{}".format(self.current_status.http),
                 "https": "127.0.0.1:{}".format(self.current_status.http)
             }
-            req = requests.get("http://www.google.com", proxies=proxy, timeout=10)
+            req = requests.get("http://www.google.com", proxies=proxy, timeout=30)
             if req.status_code == 200:
                 return int(req.elapsed.total_seconds()*1000)
             return req.reason
         except:
             raise MyException("测试超时")
 
+    def proxy(self, types):
+        """
+        全局代理
+        """
+        try:
+            if types == 0 and self.current_status.proxy:
+                subprocess.call(["sudo bash /etc/v2rayL/remove.sh 2>/dev/null"], shell=True)
+            elif types != 0 and not self.current_status.proxy:
+                subprocess.call(["sudo bash /etc/v2rayL/add.sh 2>/dev/null"], shell=True)
+            else:
+                pass
+        except Exception as e:
+            print(e.args)
+
+        with open("/etc/v2rayL/ncurrent", "wb") as jf:
+            self.current_status.proxy = types
+            pickle.dump(self.current_status, jf)
+
 
 if __name__ == '__main__':
     A = V2rayL()
-    with open("/etc/v2rayL/ncurrent", "wb") as jf:
-        A.current_status.url = set()
-        A.current_status.url.add(("tt", "https://v2ray.dlolb.ml"))
-        A.current_status.url.add(("asd", "https://sub.qianglie.xyz/subscribe"))
-        A.current_status.url.add(("test", "https://sub.qianglie.xyz/subsaae"))
-        A.current_status.url.add(("ql", "https://sub.qianglie.xyz/subscribe.php?sid=5582&token=g6e8VdU6C40H"))
-        pickle.dump(A.current_status, jf)
