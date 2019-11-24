@@ -43,15 +43,20 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ra
 # 使用
 
 ## 使用前请注意
+
+**所有命令请直接运行，避免导致出现权限问题**
+
+**所有命令请直接运行，避免导致出现权限问题**
+
 使用脚本安装时下载的程序实在`ubuntu 18.04` + `Python3.6`的环境下打包的，因此在Python版本不一致的环境中可能会出现版本不兼容的问题
 
-解决方法：
+解决方法(请先运行安装脚本)：
 
 在自己的电脑上重新打包程序，具体方法如下（参考）
 1. 运行`git clone https://github.com/jiangxufeng/v2rayL.git`
 2. 进入项目文件夹，然后运行`pip install -r requirements.txt`
 3. 运行`cd v2rayL-GUI && pyinstaller -F v2rayLui.py -p config.py -p sub2conf_api.py -p v2rayL_api.py -p v2rayL_threads.py -p utils.py -i images/logo.ico -n v2rayLui`
-4. 打包后运行`mv dist/v2rayLui /usr/bin/v2rayL/v2rayLui`
+4. 打包后运行`mv dist/v2rayLui /usr/bin/v2rayL/v2rayLui` 替换安装时下载的程序
 
 ## 安装
 ```
