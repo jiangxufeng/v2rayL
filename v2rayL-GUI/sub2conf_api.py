@@ -50,16 +50,16 @@ class Sub2Conf(object):
         :return:
         """
         if prot == "vmess":
-            ret = json.loads(parse.unquote(base64.b64decode(b64str).decode()).replace("\'", "\""))
+            ret = json.loads(parse.unquote(base64.b64decode(b64str + "==").decode()).replace("\'", "\""))
             region = ret['ps']
 
         elif prot == "shadowsocks":
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
-                tmp = parse.unquote(base64.b64decode(cf[0]).decode())
+                tmp = parse.unquote(base64.b64decode(cf[0] + "==").decode())
             else:
-                tmp = parse.unquote(base64.b64decode(cf[0]).decode() + "@" + cf[1])
+                tmp = parse.unquote(base64.b64decode(cf[0] + "==").decode() + "@" + cf[1])
                 print(tmp)
             ret = {
                 "method": tmp.split(":")[0],
