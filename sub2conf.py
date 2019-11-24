@@ -71,16 +71,16 @@ class Sub2Conf(object):
 
     def b642conf(self, prot, tp, b64str):
         if prot == "vmess":
-            ret = eval(base64.b64decode(b64str).decode())
+            ret = eval(base64.b64decode(b64str + "==").decode())
             region = ret['ps']
 
         elif prot == "ss":
             string = b64str.split("#")
             cf = string[0].split("@")
             if len(cf) == 1:
-                tmp = base64.b64decode(cf[0]).decode()  # aes-256-cfb:541603466@142.93.50.78:9898
+                tmp = base64.b64decode(cf[0] + "==").decode()  # aes-256-cfb:541603466@142.93.50.78:9898
             else:
-                tmp = base64.b64decode(cf[0]).decode()+"@"+cf[1]
+                tmp = base64.b64decode(cf[0] + "==").decode()+"@"+cf[1]
             ret = {
                 "method": tmp.split(":")[0],
                 "port": tmp.split(":")[2],
