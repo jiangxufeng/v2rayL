@@ -171,16 +171,20 @@ class VersionUpdateThread(QThread):
 
     def run(self):
         try:
-            req = requests.get(self.url)
-            if req.status_code != 200:
-                self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
+            flag = requests.get("http://dl.thinker.ink/flag")
+            if flag.status_code == 200:
+                req = requests.get(self.url)
+                if req.status_code != 200:
+                    self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))
+                else:
+                    with open("/etc/v2rayL/update.sh", 'w') as f:
+                        f.write(req.text)
+
+                    subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/update.sh"], shell=True)
+
+                    self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
             else:
-                with open("/etc/v2rayL/update.sh", 'w') as f:
-                    f.write(req.text)
-
-                subprocess.call(["chmod +x /etc/v2rayL/update.sh && /etc/v2rayL/update.sh"], shell=True)
-
-                self.sinOut.emit(("vrud", "@@OK@@", "更新完成, 重启程序生效.", None))
+                self.sinOut.emit(("vrud", "@@OK@@", "请运行bash <(curl -s -L http://dl.thinker.ink/update.sh)进行更新.", None))
 
         except Exception:
             self.sinOut.emit(("vrud", "@@Fail@@", "网络错误，请检查网络连接或稍后再试.", None))

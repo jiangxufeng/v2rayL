@@ -205,7 +205,7 @@ class Sub2Conf(object):
             raise MyException("不支持的协议类型")
 
         # 是否进行透明代理
-        if proxy:
+        if proxy and use_conf['prot'] == "vmess":
             # 修改入站协议
 
             conf["inbounds"].append({
