@@ -39,11 +39,13 @@ class V2rayL(object):
         try:
             with open("/etc/v2rayL/ncurrent", "rb") as f:
                 # self.current, self.url, self.auto, self.check, self.http, self.socks, self.log = pickle.load(f)
-                self.current_status = pickle.load(f)
+                t = pickle.load(f)
+            self.current_status = t
+        except AttributeError:
+            self.current_status = CurrentStatus(t.current, t.url, t.auto, t.check, t.http, t.socks, t.log)
 
         except:
             self.current_status = CurrentStatus()
-
         self.subs = Sub2Conf(subs_url=self.current_status.url)
 
     def auto_check(self, flag):

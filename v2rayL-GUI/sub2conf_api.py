@@ -214,7 +214,8 @@ class Sub2Conf(object):
                 "protocol": "dokodemo-door",
                 "settings": {
                     "network": "tcp,udp",
-                    "followRedirect": True
+                    "followRedirect": True,
+                    "timeout": 30
                 },
                 "sniffing": {
                     "enabled": True,
