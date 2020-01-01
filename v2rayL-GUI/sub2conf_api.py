@@ -364,7 +364,7 @@ class Sub2Conf(object):
             for url in self.subs_url:
                 # print(url)
                 try:
-                    ret = requests.get(url[1], timeout=30)
+                    ret = requests.get(url[1], timeout=30, headers={'user-agent': 'v2rayL/2.1.3 (GUI)'})
                     if ret.status_code != 200:
                         error_subs.append([url, "无法获取订阅信息，订阅站点访问失败"])
                         raise MyException("无法获取订阅信息，订阅站点访问失败")
