@@ -154,7 +154,7 @@ class Sub2Conf(object):
         更新订阅
         """
         try:
-            ret = requests.get(self.subs_url)
+            ret = requests.get(self.subs_url, headers={'user-agent': 'v2rayL/1.0'})
             if ret.status_code != 200:
                 return 
             all_subs = base64.b64decode(ret.text + "==").decode().strip().split("\n")
