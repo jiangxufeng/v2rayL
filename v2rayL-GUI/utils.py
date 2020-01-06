@@ -71,7 +71,7 @@ def qt_message_handler(mode, context, message):
     else:
      mode = 'DEBUG'
 
-    en, info = message.split("@$ff$@")
-    if en == "True":
+    msg = message.split("@$ff$@")
+    if len(msg) == 2 and msg[0] == "True":
         with open("/etc/v2rayL/v2rayL_op.log", "a+") as f:
-            f.write(' %s - %s: %s\n' % (datetime.datetime.now(), mode, info))
+            f.write(' %s - %s: %s\n' % (datetime.datetime.now(), mode, msg[1]))
