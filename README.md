@@ -62,6 +62,14 @@ v2ray linux 客户端，使用pyqt5编写GUI界面，核心基于v2ray-core(v2ra
 ```
 bash <(curl -s -L http://dl.thinker.ink/install.sh)
 ```
+上述命令因解析文件下载直链服务可能出现500，因为也可通过下面方法安装
+
+可以下载从这：https://www.lanzous.com/iaynbud
+
+下载文件至本地后，解压运行
+``` bash
+./install.sh
+``` 
 
 ## 更新
 ``` bash
