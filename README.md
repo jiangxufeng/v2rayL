@@ -73,9 +73,7 @@ bash <(curl -s -L http://dl.thinker.ink/install.sh)
 
 **deb包**：
 
-下载链接：https://apt.atzlinux.com/atzlinux/pool/main/v/v2raylui/v2raylui_2.1.4-20200219atzlinux_amd64.deb
-
-该软件包在 Debian 10 下可以正常启动界面，也可以兼容其它 Debian 系发行版（未测试）。
+可在[铜豌豆软件源](https://www.atzlinux.com/allpackages.htm)中进行根据说明进行v2rayL的下载安装
 
 ## 更新
 ``` bash
